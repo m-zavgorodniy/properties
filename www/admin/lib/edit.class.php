@@ -837,8 +837,9 @@ class Editor extends MetaTable {
 				}
 				mysql_free_result($rs);
 			} else {
-				$rs_meta = db_mysql_query("SELECT table_name, depends_on_site FROM meta_table WHERE table_name = '" . mysql_real_escape_string($meta_table_name, $conn) . "'", $conn); // WHERE id = ...
+				$rs_meta = db_mysql_query("SELECT id, table_name, depends_on_site FROM meta_table WHERE table_name = '" . mysql_real_escape_string($meta_table_name, $conn) . "'", $conn); // WHERE id = ...
 				if ($row_meta = mysql_fetch_assoc($rs_meta)) {
+					$table = $row_meta['id'];
 					$table_name = $row_meta['table_name'];
 					$select_by_site = $row_meta['depends_on_site'];
 			
@@ -850,12 +851,24 @@ class Editor extends MetaTable {
 						} else {
 							$lookup_where = "1";
 						}
-						if (false !== mysql_query("SELECT sort_num FROM `" . $table_name . "` WHERE 1 LIMIT 1", $conn)) {
+						// todo - sort_num, is_group_title (and others, like id) are reserved names after all - handle it somehow
+						// maybe sort by this field automatically everywhere if type_extra='sort' (set default_order_num=0?? 0 is just the number on top)
+						$rs_is_order = db_mysql_query("SELECT 1 FROM meta_table_field WHERE meta_table_id = '" . mysql_real_escape_string($table) . "' AND field = 'sort_num' AND type_extra='sort' AND published <> 0 LIMIT 1", $conn);
+						if (mysql_num_rows($rs_is_order)) {
+							$sort_by_order = true;
+						}
+						mysql_free_result($rs_is_order);
+						$rs_is_group_title = db_mysql_query("SELECT 1 FROM meta_table_field WHERE meta_table_id = '" . mysql_real_escape_string($table) . "' AND field = 'is_group_title' AND published <> 0 LIMIT 1", $conn);
+						if (mysql_num_rows($rs_is_group_title)) {
+							$is_group_title_field = true;
+						}
+						mysql_free_result($rs_is_group_title);
+/*						if (false !== mysql_query("SELECT sort_num FROM `" . $table_name . "` WHERE 1 LIMIT 1", $conn)) {
 							$sort_by_order = true;
 						}
 						if (false !== mysql_query("SELECT is_group_title FROM `" . $table_name . "` WHERE 1 LIMIT 1", $conn)) {
 							$is_group_title_field = true;
-						}
+						}*/
 						// todo. possible security issue - unescaped $sql_lookup_filter
 						$rs = db_mysql_query($sql_custom?$sql_custom:"SELECT id, `" . $field_name . "`" . ($is_group_title_field?", is_group_title":"") . " FROM `" . $table_name . "` WHERE " . $lookup_where . ($sql_lookup_filter?" AND ".$sql_lookup_filter:'') . " ORDER BY " . ($sort_by_order?'sort_num,':'') . "2", $conn);
 						if ($is_multi) {
