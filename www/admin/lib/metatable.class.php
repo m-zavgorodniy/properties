@@ -129,7 +129,14 @@ class MetaTable {
 						$res .= "IF (YEAR(`" . $this->table_meta['table_name'] . "`.`" . $field . "`) = '0000', NULL, DATE_FORMAT(`" . $this->table_meta['table_name'] . "`.`" . $field . "`, '" . ($this->is_front?'%Y-%m-%d':get_date_format()) . ($row['type_extra'] == 'datetime'?' %H:%i':'') . "')) `" . $field . "`";
 					} else if ($row['type_extra'] == 'calc' or $row['type_extra'] == 'calc_boolean' or $row['type_extra'] == 'calc_view') {
 						// todo. maybe. sql filter by calculated fields
-						$res .= "(" . $row['sql_value'] . ") `" . $field . "`";
+
+						// if sql_value contains a select from joined table it doesn't work in Editor as it doesn't join tables, it uses IDs+lookups
+						// todo! a quick workaround for now
+						if (!($this instanceof Editor and false !== stripos($row['sql_value'], ' from '))) {
+							$res .= "(" . $row['sql_value'] . ") `" . $field . "`";
+						} else {
+							$res .= "1";
+						}
 					} else {
 						$res .= "`" . $this->table_meta['table_name'] . "`.`" . $field . (($this->front_lang_id and $row['multi_lang'])?'_'.$this->front_lang_id."` `" . $field . "`":"`");
 						if (!$this->is_front and $row['multi_lang'] and $this->site_langs_extra) {
