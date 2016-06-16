@@ -1,5 +1,5 @@
 function openEditWindow(url, _w, _h) {
-	var w = _w?_w:700;
+	var w = _w?_w:720;
 	var h = _h?_h:800;
 	window.open(url, '_blank', 'width=' + w + ',height=' + h + ',resizable=1,scrollbars=1,top='+Math.floor(screen.height/2-(h+50)/2-50)+',left='+Math.floor(screen.width/2-(w+50)/2-50));
 	return false;
