@@ -194,7 +194,32 @@ function get_data($site, &$single_item_title = '') {
 
 	$rs = db_mysql_query("SELECT m.id meta_table, m.frontend_on_all_pages, m.frontend_id_param_name, m.frontend_onpage_num, m.frontend_act_param_name FROM meta_table m, section_type t, meta_table2section_type m2t WHERE (m.id = m2t.meta_table_id AND m2t.section_type_id = t.id AND t.id = '" . $site->section_type . "' OR m.frontend_on_all_pages <> 0) AND m.frontend_passthrough <> 0 GROUP BY m.id", $site->conn);
 	while ($row = mysql_fetch_row($rs)) {
-		if (!($row[4] and !isset($_GET[$row[4]])) or !($row[2] and !isset($_GET[$row[2]]))) {
+		if ($row[4]) {
+			// multiple activation parameters - comma separated, condition: or
+			// if frontend_act_param_name starts from ! - inverse the whole condition
+			// examples: service, center (= service OR center); ! service, center (= !service AND !center)
+			// todo. make it user friendly?
+
+			$inverse_cond = false;
+			if (0 === strpos($row[4], '!')) {
+				$row[4] = ltrim($row[4], '! '); // note the space
+				$inverse_cond = true;
+			}
+
+			if (false === strpos($row[4], ',')) {
+				$not_activated = !isset($_GET[$row[4]]);
+			} else {
+				$act_param_names = array_flip(array_map('trim', explode(',', $row[4])));
+				$act_params_in_get = array_intersect_key($act_param_names, $_GET);
+
+				$not_activated = empty($act_params_in_get);
+			}
+
+			if ($inverse_cond) {
+				$not_activated = !$not_activated;
+			}
+		}
+		if (!($row[4] and $not_activated) or $row[2] and isset($_GET[$row[2]])) {
 			$data_tables[$row[0]] = array('on_all_pages' => $row[1], 'id_param_name' => $row[2], 'onpage_num' => $row[3]);
 		}
 	}
