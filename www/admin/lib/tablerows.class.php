@@ -157,13 +157,16 @@ class TableRows extends MetaTable {
                                 <?=htmlspecialchars($subrow[$column . "_lookup"])?>
 <?								} ?>&#160;
                             </td>
-<?						} else { 
+<?						} else {
+                            $field_value = '';
                             if ($meta['type'] === 'html') {
                                 $field_value = $subrow[$column];
                             } else if ($meta['type'] === 'textarea') {
                                 $field_value = nl2br(htmlspecialchars($subrow[$column]));
                             } else if (0 === strpos($meta['type'], 'image')) {
-                                $field_value = '<img src="' . htmlspecialchars($subrow[$column]) . (false === strpos($subrow[$column], '?')?'?' . rand():'') . '" alt="" class="cm-content-subquery-image" />';
+                                if ($subrow[$column]) {
+                                    $field_value = '<img src="' . htmlspecialchars($subrow[$column]) . (false === strpos($subrow[$column], '?')?'?' . rand():'') . '" alt="" class="cm-content-subquery-image" />';
+                                }
                             } else {
                                 $field_value = htmlspecialchars($subrow[$column . (($meta['multi_lang'] and $field_lang_id)?'_' . $field_lang_id:'')]);
                             } ?>

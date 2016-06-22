@@ -110,7 +110,7 @@ a.cm-panel-site-control {margin: 0 0 0 -10px;}
 .cm-content-subquery td.cm-content-subquery-boolean {min-width: 31px;}
 .cm-content-subquery th {text-align: left; white-space: nowrap; background-color: #d4d0c8; border-width: 1px; border-color: #ffffff #808080 #808080 #ffffff;}
 .cm-content-subquery th a {display: block; padding: 3px; text-decoration: none;}
-.cm-content-subquery img {width: 16px;}
+.cm-content-subquery img {width: 16px; height: auto;}
 .cm-content-subquery img.cm-content-subquery-image {width: auto; max-height: 150px;}
 .cm-content-subquery .picture img {width: auto;}
 .cm-content-subquery textarea {width: 150px; height: 50px; border: 1px solid #d4d0c8; font-size: 11px; padding: 0 2px;}
