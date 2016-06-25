@@ -328,10 +328,10 @@ function data_output_filter(&$records, $field_types, $locale) {
 			if (!is_array($value)) {
 				if ($field_types[$field] == 'text' or $field_types[$field] == 'textarea') {
 					$value = htmlspecialchars($value, ENT_NOQUOTES);
-					$value = $config['OUT_TYPO_ENABLED']?typo_filter($value, $locale):$value;
 					if ($field_types[$field] == 'textarea') {
 						$value = nl2br($value);
 					}
+					$value = $config['OUT_TYPO_ENABLED']?typo_filter($value, $locale):$value;
 				} else if ($field_types[$field] == 'html') {
 					$value = html_content_filter($value, NULL, !$config['OUT_TYPO_ENABLED'], $locale);
 				}
