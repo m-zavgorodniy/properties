@@ -226,8 +226,8 @@ class Site {
 					if (!$this->site_description and $row['meta_description']) {
 						$this->site_description = $row['meta_description'];
 					}*/
-					if ($section_path == $this->section_path) {
-					//if ($section_path == (($this->site_path_mode and '' !== $this->site_path)?next(explode($this->site_path, $_SERVER['REQUEST_URI'], 2)):$_SERVER['REQUEST_URI'])) {
+////					if ($section_path == $this->section_path) {
+					if ($section_path == rtrim((($this->site_path_mode and '' !== $this->site_path)?next(explode($this->site_path, $_SERVER['REQUEST_URI'], 2)):$_SERVER['REQUEST_URI']), '/')) {
 						$crumb['is_current'] = true;
 					}
 /////			}
