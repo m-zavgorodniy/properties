@@ -22,6 +22,7 @@ class Site {
 	var $seo_title;
 	var $seo_description;
 	var $seo_keywords;
+	var $seo_h1;
 	var $seo_text;
 	var $seo_redirect_url;
 
@@ -94,7 +95,7 @@ class Site {
 			if ($this->config['SEO_ENABLED']) {
 				// ! ORDER BY url DESC - to process absolute URLs starting with http before relative URLs starting with /
 				$rs = db_mysql_query(
-				"SELECT title, meta_keywords, meta_description, body, redirect_url
+				"SELECT title, meta_keywords, meta_description, h1, body, redirect_url
 					FROM seo_url_data
 					WHERE ('" . mysql_real_escape_string($_SERVER["REQUEST_URI"], $this->conn) . "' REGEXP CONCAT('^', REPLACE(REPLACE(url, '?', '\\\\?'), '*', '[^\/]+'), '$')
 							OR '" . mysql_real_escape_string(($_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://') . $_SERVER["SERVER_NAME"] . $_SERVER["REQUEST_URI"], $this->conn) . "' REGEXP CONCAT('^', REPLACE(REPLACE(url, '?', '\\\\?'), '*', '[^\/]+'), '$'))
@@ -107,6 +108,7 @@ class Site {
 					$this->seo_title = $row['title'];
 					$this->seo_description = $row['meta_description'];
 					$this->seo_keywords = $row['meta_keywords'];
+					$this->seo_h1 = $row['h1'];
 					$this->seo_text = html_content_filter($row['body'], NULL, !$this->config['OUT_TYPO_ENABLED'], $this->locale);
 					$this->seo_redirect_url = $row['redirect_url'];
 				}
