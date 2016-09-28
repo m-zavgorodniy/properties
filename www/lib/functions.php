@@ -178,7 +178,7 @@ function out_http_link($href, $with_http = false, $content = '', $class_name = '
 	} else if (0 !== stripos($href, 'http://') and 0 !== stripos($href, 'https://')) {
 		$href = 'http://' . $href;
 	}
-	echo '<a href="' . $href . '" target="_blank"' . ($class_name?' class="' . $class_name . '"':'') . '>' . ($content?$content:($with_http?'http://':'') . current(explode('/', str_replace(array('http://', 'https://'), '', $href))) . ($with_http?'/':'')) . '</a>';
+	echo '<a href="' . $href . '" rel="nofollow" target="_blank"' . ($class_name?' class="' . $class_name . '"':'') . '>' . ($content?$content:($with_http?'http://':'') . current(explode('/', str_replace(array('http://', 'https://'), '', $href))) . ($with_http?'/':'')) . '</a>';
 }
 
 function out_widget($widget_name, $out_function_name, $params = NULL, $cache_life = 3600) {
