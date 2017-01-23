@@ -119,7 +119,7 @@ function text_date_of_week($date, $locale = 'ru_RU') {
 }
 
 function text_format_quantity_ru($num, $format) {
-	// usage: text_format_quantity_ru($cost, array('рубль', 'рубля', 'рублей')
+	// usage: text_format_quantity_ru($cost, array('рубль', 'рубля', 'рублей'))
 	$a = substr($num, strlen($num)-1, 1);
 	$b = substr($num, strlen($num)-2, 2);
 	if ($a==1 and $b!=11) return $format[0];
