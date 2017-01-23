@@ -52,7 +52,7 @@ if ($site = get_site(SITE_PATH, $conn)) {
 	
 	require SITE_LIB_PATH . '/config.php'; // override main config settings for a site
 
-	error_reporting($config['DEBUG_ENABLED']?7:0);
+	error_reporting($config['DEBUG_ENABLED']?E_ALL:0);
 	
 	if (SITE_PATH_MODE and '' !== SITE_PATH) { // and !LANG_ID`
 		$uri_path = next(explode(SITE_PATH, $uri_path, 2));
