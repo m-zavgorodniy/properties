@@ -87,9 +87,14 @@ function mail_send($to, $subject, $message, $is_html = false, $file = NULL) {
 	$mailer->AddAddress($to, $to);
 
 	if (!is_null($file)) {
-		$tmp_name = $file['tmp_name'];
-		$name = $file['name'];
-		if (file_exists($file['tmp_name'])) {
+		if (is_array($file)) {
+			$tmp_name = $file['tmp_name'];
+			$name = $file['name'];
+		} else {
+			$tmp_name = $file;
+			$name = basename($file);
+		}
+		if (file_exists($tmp_name)) {
 			$mailer->AddAttachment($tmp_name, $name);
 		}
 	}
