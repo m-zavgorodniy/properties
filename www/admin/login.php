@@ -49,8 +49,8 @@
 			$alert = "Неправильное имя пользователя или пароль";
 			usleep(500);
 		}
-		mysql_free_result($rs);
-		mysql_close($conn);
+		mysqli_free_result($rs);
+		mysqli_close($conn);
 	}
 
 	if (isset($_GET['logout'])) {

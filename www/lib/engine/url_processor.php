@@ -126,8 +126,8 @@ if ($site = get_site(SITE_PATH, $conn)) {
 											if ($param_rule['values_table']) {
 												// cache ?
 												// ! hardcode, kind of, to do: only two possible languages, no more: <field>, <field>_<SEO_URL_SOURCE_LANG_ID>
-					/*							$rs = db_mysql_query("SELECT id, `" . $param_rule['values_source_field'] ."`" . (($param_rule['multi_lang_field'] and $config['SEO_URL_SOURCE_LANG_ID'] != '')?", `" . current(explode('_' . $config['SEO_URL_SOURCE_LANG_ID'], $param_rule['values_source_field'])) ."`":'') . " FROM `" . $param_rule['values_table'] . "` WHERE `" . $param_rule['values_target_field'] ."` = '" . mysql_real_escape_string($real_param_value, $conn) . "'", $conn);
-												if ($row = mysql_fetch_row($rs)) {
+					/*							$rs = db_mysql_query("SELECT id, `" . $param_rule['values_source_field'] ."`" . (($param_rule['multi_lang_field'] and $config['SEO_URL_SOURCE_LANG_ID'] != '')?", `" . current(explode('_' . $config['SEO_URL_SOURCE_LANG_ID'], $param_rule['values_source_field'])) ."`":'') . " FROM `" . $param_rule['values_table'] . "` WHERE `" . $param_rule['values_target_field'] ."` = '" . mysqli_real_escape_string($conn, $real_param_value, ) . "'", $conn);
+												if ($row = mysqli_fetch_row($rs)) {
 													$real_param_value = $row[0];
 													if ($row[2]) {
 														array_unshift($page_title[''], $row[2]);
@@ -136,12 +136,12 @@ if ($site = get_site(SITE_PATH, $conn)) {
 														array_unshift($page_title[''], $row[1]);
 													}
 												}
-												mysql_free_result($rs);*/
+												mysqli_free_result($rs);*/
 	
 												// ! todo - work with locale as a language fields postfix, get list of all locales used within the site 
 												$extra_langs = $extra_lang_fields = $has_published_field = false;
 												$rs = db_mysql_query("DESC `" . $param_rule['values_table'] . "`", $conn); // DESC `" . $param_rule['values_table'] . "` `" . $param_rule['values_source_field_name'] ."_%`"
-												while ($row = mysql_fetch_row($rs)) {
+												while ($row = mysqli_fetch_row($rs)) {
 													if (0 === strpos($row[0], $param_rule['values_source_field_name'] . '_')) {
 														$extra_langs[] = end(explode('_', $row[0]));
 														$extra_lang_fields[] = $row[0];
@@ -150,10 +150,10 @@ if ($site = get_site(SITE_PATH, $conn)) {
 														$has_published_field = true;
 													}
 												}
-												mysql_free_result($rs);
+												mysqli_free_result($rs);
 					
-												$rs = db_mysql_query("SELECT id, `" . $param_rule['values_source_field_name'] ."`" . ($extra_langs?',`' . implode('`,`', $extra_lang_fields) . '`':'') . " FROM `" . $param_rule['values_table'] . "` WHERE `" . $param_rule['values_target_field'] ."` = '" . mysql_real_escape_string($real_param_value, $conn) . "'" . ($has_published_field?' AND `' . $config['SEO_URL_PUBLISHED_FIELD_NAME'] . '` <> 0':''), $conn);
-												if ($row = mysql_fetch_assoc($rs)) {
+												$rs = db_mysql_query("SELECT id, `" . $param_rule['values_source_field_name'] ."`" . ($extra_langs?',`' . implode('`,`', $extra_lang_fields) . '`':'') . " FROM `" . $param_rule['values_table'] . "` WHERE `" . $param_rule['values_target_field'] ."` = '" . mysqli_real_escape_string($conn, $real_param_value) . "'" . ($has_published_field?' AND `' . $config['SEO_URL_PUBLISHED_FIELD_NAME'] . '` <> 0':''), $conn);
+												if ($row = mysqli_fetch_assoc($rs)) {
 													$title_url = ($config['SEO_URL_NAMED_PARAMS_MODE']?$param_name . $config['SEO_URL_PARAM_NAME_DELIMETER']:'') . $real_param_value . '/';
 													
 													$real_param_value = $row['id'];
@@ -170,7 +170,7 @@ if ($site = get_site(SITE_PATH, $conn)) {
 													// parameter's seo-value not found
 													define('URL_PROCESSOR_ERROR', true);
 												}
-												mysql_free_result($rs);
+												mysqli_free_result($rs);
 											}
 										} else if ('numeric' == $param_rule['type']) {
 											if (0 === strpos($real_param_value, 'between-')) {
@@ -232,7 +232,7 @@ if ($site = get_site(SITE_PATH, $conn)) {
 
 /*$rs = db_mysql_query("SELECT s.meta_site_id, site.path site_path, s.id section_id, s.section_type_id FROM section s, meta_site site WHERE s.meta_site_id = site.id AND CONCAT(site.path, s.path, s.dir) = '" . $real_url . "' AND s.published <> 0", $conn);
 
-if ($row = mysql_fetch_assoc($rs)) {
+if ($row = mysqli_fetch_assoc($rs)) {
 	define('SITE_ID', $row['meta_site_id']);
 	define('SITE_PATH', rtrim($row['site_path'], '/'));
 	define('SECTION_ID', $row['section_id']);
@@ -242,7 +242,7 @@ if ($row = mysql_fetch_assoc($rs)) {
 	
 //	$PAGE_TITLES = &$page_title; // we don't know current lang at the moment, handle it later
 /*}
-mysql_free_result($rs);*/
+mysqli_free_result($rs);*/
 
 /*$end_time = microtime();
 $end_array = explode(" ",$end_time);
@@ -255,10 +255,10 @@ require $_SERVER['DOCUMENT_ROOT'] .  '/lib/engine/site.php';
 function get_site($site_path, $conn) {
 	$res = false;
 	$rs = db_mysql_query("SELECT id, own_domain, path_files FROM meta_site WHERE path = '" . $site_path . "' OR path = '" . $site_path . "/'", $conn);
-	if ($row = mysql_fetch_assoc($rs)) {
+	if ($row = mysqli_fetch_assoc($rs)) {
 		$res = $row;
 	}
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 	
 	return $res;
 }
@@ -266,10 +266,10 @@ function get_site($site_path, $conn) {
 function get_site_langs($site_id, $conn) {
 	$res = false;
 	$rs = db_mysql_query("SELECT id, title, domain, locale FROM meta_site_lang WHERE meta_site_id = '" . $site_id . "'", $conn);
-	while ($row = mysql_fetch_assoc($rs)) {
+	while ($row = mysqli_fetch_assoc($rs)) {
 		$res[$row['id']] = $row;
 	}
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 	
 	return $res;
 }
@@ -278,7 +278,7 @@ function get_site_langs($site_id, $conn) {
 function get_section_by_path($site_id, $path_mode, $uri_path, $seo_url_enabled, $conn) {
 	$res = false;
 
-	$uri_path = mysql_real_escape_string($uri_path, $conn);
+	$uri_path = mysqli_real_escape_string($conn, $uri_path);
 	// ORDER BY
 	// LENGTH(path_full) - LENGTH(REPLACE(path_full, '/', '')) DESC - number of occurrences of '/' in path
 	// LENGTH(path_full) DESC - to get /property before /
@@ -291,10 +291,10 @@ function get_section_by_path($site_id, $path_mode, $uri_path, $seo_url_enabled, 
 			:"IF(path_full = '/', path_full, CONCAT(path_full, '/')) = '" . rtrim($uri_path, '/') . "/'") . "
 		ORDER BY (LENGTH(path_full) - LENGTH(REPLACE(path_full, '/', ''))) DESC, LENGTH(path_full) DESC
 		LIMIT 1", $conn);
-	if ($row = mysql_fetch_assoc($rs)) {
+	if ($row = mysqli_fetch_assoc($rs)) {
 		$res = $row;
 	}
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 	
 	return $res;
 }

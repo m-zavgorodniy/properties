@@ -193,7 +193,7 @@ function get_data($site, &$single_item_title = '') {
 	define('DATA_IS_SINGLE_TAG_NAME', 'is_single');
 
 	$rs = db_mysql_query("SELECT m.id meta_table, m.frontend_on_all_pages, m.frontend_id_param_name, m.frontend_onpage_num, m.frontend_act_param_name FROM meta_table m, section_type t, meta_table2section_type m2t WHERE (m.id = m2t.meta_table_id AND m2t.section_type_id = t.id AND t.id = '" . $site->section_type . "' OR m.frontend_on_all_pages <> 0) AND m.frontend_passthrough <> 0 GROUP BY m.id", $site->conn);
-	while ($row = mysql_fetch_row($rs)) {
+	while ($row = mysqli_fetch_row($rs)) {
 		if ($row[4]) {
 			// multiple activation parameters - comma separated, condition: or
 			// if frontend_act_param_name starts from ! - inverse the whole condition
@@ -223,7 +223,7 @@ function get_data($site, &$single_item_title = '') {
 			$data_tables[$row[0]] = array('on_all_pages' => $row[1], 'id_param_name' => $row[2], 'onpage_num' => $row[3]);
 		}
 	}
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 
 	$html_fields = array();
 	
@@ -372,8 +372,8 @@ function make_sef_url($section_type_id, $conn, &$error) {
 			foreach($param_value as &$value) {
 				if ('' == $sef_rule['type']) {
 					if ($sef_rule['values_table']) {
-						$rs = db_mysql_query("SELECT TRIM(IFNULL(`" . $sef_rule['values_target_field'] . "`, '')) `" . $sef_rule['values_target_field'] . "` FROM `" . $sef_rule['values_table'] . "` WHERE id = '" . mysql_real_escape_string($value, $conn). "'", $conn);
-						if ($row = mysql_fetch_row($rs)) {
+						$rs = db_mysql_query("SELECT TRIM(IFNULL(`" . $sef_rule['values_target_field'] . "`, '')) `" . $sef_rule['values_target_field'] . "` FROM `" . $sef_rule['values_table'] . "` WHERE id = '" . mysqli_real_escape_string($conn, $value). "'", $conn);
+						if ($row = mysqli_fetch_row($rs)) {
 							if ('' !== $row[0]) {
 								$sef_url_value = $row[0]; // values in target field is in url safe format
 							} else {
@@ -382,7 +382,7 @@ function make_sef_url($section_type_id, $conn, &$error) {
 						} else {
 							$error = true;
 						}
-						mysql_free_result($rs);
+						mysqli_free_result($rs);
 					} else {
 						$sef_url_value = urlencode($value);
 					}
@@ -464,11 +464,11 @@ function make_sef_url($section_type_id, $conn, &$error) {
 	$path = str_replace('//', '/', '/' . implode('/', $full_path_parts) . '/');
 	
 	$rs = db_mysql_query("SELECT id, section_type_id FROM section WHERE meta_site_id = '" . $site_id . "' AND path = '" . $path . "' AND dir = '" . $dir . "' AND published <> 0", $conn);
-	if ($row = mysql_fetch_assoc($rs)) {
+	if ($row = mysqli_fetch_assoc($rs)) {
 		define('SECTION_ID', $row['id']);
 		define('SECTION_TYPE', $row['section_type_id']);
 	}
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 }*/
 
 ?>

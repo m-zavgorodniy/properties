@@ -97,13 +97,13 @@ class Site {
 				$rs = db_mysql_query(
 				"SELECT title, meta_keywords, meta_description, h1, body, redirect_url
 					FROM seo_url_data
-					WHERE ('" . mysql_real_escape_string($_SERVER["REQUEST_URI"], $this->conn) . "' REGEXP CONCAT('^', REPLACE(REPLACE(url, '?', '\\\\?'), '*', '[^\/]+'), '$')
-							OR '" . mysql_real_escape_string(($_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://') . $_SERVER["SERVER_NAME"] . $_SERVER["REQUEST_URI"], $this->conn) . "' REGEXP CONCAT('^', REPLACE(REPLACE(url, '?', '\\\\?'), '*', '[^\/]+'), '$'))
+					WHERE ('" . mysqli_real_escape_string($this->conn, $_SERVER["REQUEST_URI"]) . "' REGEXP CONCAT('^', REPLACE(REPLACE(url, '?', '\\\\?'), '*', '[^\/]+'), '$')
+							OR '" . mysqli_real_escape_string($this->conn, ($_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://') . $_SERVER["SERVER_NAME"] . $_SERVER["REQUEST_URI"]) . "' REGEXP CONCAT('^', REPLACE(REPLACE(url, '?', '\\\\?'), '*', '[^\/]+'), '$'))
 						AND published <> 0
 					ORDER BY url DESC
 					LIMIT 1", $this->conn);
-				$row = mysql_fetch_assoc($rs);
-				mysql_free_result($rs);
+				$row = mysqli_fetch_assoc($rs);
+				mysqli_free_result($rs);
 				if ($row) {
 					$this->seo_title = $row['title'];
 					$this->seo_description = $row['meta_description'];
@@ -150,8 +150,8 @@ class Site {
 		$rs = db_mysql_query("SELECT path, own_domain, locale FROM meta_site WHERE id = '" . $this->site_id . "'", $this->conn); // , custom_templates
 		// SELECT path, own_domain, lang_id.. - lang_id is removed
 		// supposed to be one record
-		$row = mysql_fetch_assoc($rs);
-		mysql_free_result($rs);
+		$row = mysqli_fetch_assoc($rs);
+		mysqli_free_result($rs);
 		if ($row) {
 			$this->site_real_path = rtrim($row['path'], " /");
 			$this->own_domain = $row['own_domain'];
@@ -166,8 +166,8 @@ class Site {
 			$this->html_lang = current(explode('_', $row['locale']));
 			if ($this->config['LANG_ENABLED']) {
 				// also checks if lang_id really exists
-				$rs = db_mysql_query("SELECT id, locale FROM meta_site_lang WHERE id = '" . mysql_real_escape_string($this->lang_id, $this->conn) . "'", $this->conn);
-				if ($row_lang = mysql_fetch_row($rs)) {
+				$rs = db_mysql_query("SELECT id, locale FROM meta_site_lang WHERE id = '" . mysqli_real_escape_string($this->conn, $this->lang_id) . "'", $this->conn);
+				if ($row_lang = mysqli_fetch_row($rs)) {
 					$this->lang_field_postfix = '_'.$row_lang[0];
 					$this->locale = $row_lang[1];
 					$this->html_lang = current(explode('_', $row_lang[1]));
@@ -177,7 +177,7 @@ class Site {
 					$this->lang_id = '';
 					$this->lang_field_postfix = '';
 				}
-				mysql_free_result($rs);
+				mysqli_free_result($rs);
 			} else {
 				$this->lang_id = '';
 			}
@@ -202,8 +202,8 @@ class Site {
 									 s.img_src
 							  FROM section s
 							  WHERE s.id = " . $section_id, $this->conn); //, s.meta_keywords
-		$row = mysql_fetch_assoc($rs);
-		mysql_free_result($rs);
+		$row = mysqli_fetch_assoc($rs);
+		mysqli_free_result($rs);
 		if ($row) {
 			if (!$this->section_image and $row['img_src']) { // while picture is not found
 				$this->section_image = $row['img_src'];
@@ -281,7 +281,7 @@ class Site {
 							  WHERE s.id = sc.section_id AND s.published <> 0 AND s.hidden = 0 AND s.meta_site_id = '" . $this->site_id . "'
 							  " . ($this->config['LANG_ENABLED']?"AND (s.meta_site_lang_id = '" . $this->lang_id . "' OR FIND_IN_SET('" . $this->lang_id . "', s.meta_site_lang_id))":'') . "
 							  ORDER BY menu, sc.sort_num, s.sort_num, submenu.sort_num, submenu2.sort_num", $this->conn);
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			if ($menu != $row['menu']) {
 				$menu = $row['menu'];
 				unset($menu_id);
@@ -331,7 +331,7 @@ class Site {
 				$this->get_menu_item_link($row, $submenu2_item, 2);
 			}
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 }
 	
 	function get_menu_item_link($row, &$menu_item, $submenu_level = 0) {
@@ -361,12 +361,12 @@ class Site {
 			$rs = db_mysql_query("SELECT id, section_type_id, path, dir, url, section_id, target_blank
 								  FROM section
 								  WHERE published <> 0 AND section_id = " . ($row['submenu2_id']?$row['submenu2_id']:($row['submenu_id']?$row['submenu_id']:$row['id'])) . " ORDER BY sort_num", $this->conn);
-			if ($row_link = mysql_fetch_assoc($rs)) {
+			if ($row_link = mysqli_fetch_assoc($rs)) {
 				$this->get_menu_item_link($row_link, $menu_item);
 			} else {
 				$menu_item['url'] = '#';
 			}
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 		}
 	}
 
@@ -374,8 +374,8 @@ class Site {
 		$rs = db_mysql_query("SELECT title, meta_keywords keywords, meta_description description FROM section
 							  WHERE section_id IS NULL and meta_site_id = '" . $this->site_id . "'", $this->conn);
 		// supposed to be one record
-		$row = mysql_fetch_assoc($rs);
-		mysql_free_result($rs);
+		$row = mysqli_fetch_assoc($rs);
+		mysqli_free_result($rs);
 		return $row; // meta[{'title', 'keywords', 'description'}]
 	}*/
 
@@ -408,21 +408,21 @@ class Site {
 		
 	function get_settings() {
 		$rs = db_mysql_query("SELECT id, value, value" . $this->lang_field_postfix . " value_lang, type, multi_lang FROM setting WHERE 1", $this->conn);
-		while ($row = mysql_fetch_assoc($rs)) {
+		while ($row = mysqli_fetch_assoc($rs)) {
 			$value = $row['multi_lang']?$row['value_lang']:$row['value'];
 			$res[$row['id']] = ($row['type'] != 'html')?htmlspecialchars($value):$value;
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		$this->settings = $res?$res:false;
 	}
 	
 	function get_section_paths() {
 		$rs = db_mysql_query("SELECT section_type_id, path, dir, title" . $this->lang_field_postfix . " title FROM section WHERE meta_site_id = '" . $this->site_id . "' AND published <> 0 GROUP BY section_type_id", $this->conn);
-		while ($row = mysql_fetch_row($rs)) {
+		while ($row = mysqli_fetch_row($rs)) {
 			$res[$row[0]]['path'] = ($this->own_domain?'':$this->site_path) . $this->lang_path . $row[1] . $row[2] . ($row[2]?'/':'');
 			$res[$row[0]]['title'] = $row[3];
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		$this->section_paths = $res?$res:false;
 	}
 }

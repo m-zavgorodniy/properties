@@ -10,12 +10,12 @@ error_reporting($config['DEBUG_ENABLED']?7:0);
 function db_mysql_connect($close_on_shutdown = false) {
 	global $config;
 
-	if ($conn = mysql_connect($config['DB_SERVER'], $config['DB_USER'], $config['DB_PASSWORD']) and mysql_select_db($config['DB_DATABASE'], $conn)) {
+	if ($conn = mysqli_connect($config['DB_SERVER'], $config['DB_USER'], $config['DB_PASSWORD']) and mysqli_select_db($conn, $config['DB_DATABASE'])) {
 		if (!$config['DB_DEFAULT_UTF8']) {
-			mysql_query('SET NAMES utf8 COLLATE utf8_unicode_ci', $conn);
+			mysqli_query($conn, 'SET NAMES utf8 COLLATE utf8_unicode_ci');
 		}
 		if ($close_on_shutdown) {
-			register_shutdown_function('mysql_close', $conn);
+			register_shutdown_function('mysqli_close', $conn);
 		}
 		return $conn;
 	}
@@ -24,16 +24,16 @@ function db_mysql_connect($close_on_shutdown = false) {
 } 
 
 function db_mysql_query($query, $conn) {
-	if ($res = mysql_query($query, $conn)) {
+	if ($res = mysqli_query($conn, $query)) {
 		return $res;
 	}
-	return mysql_error($conn);
+	return mysqli_error($conn);
 }
 
 function db_mysql_query_with_params($query, $params, $conn) {
 	if (is_array($params)) {
 		foreach ($params as $field => $value) {
-			$query = str_replace('{' . $field . '}', "'" . mysql_real_escape_string($value) . "'", $query);
+			$query = str_replace('{' . $field . '}', "'" . mysqli_real_escape_string($conn, $value) . "'", $query);
 		}
 		unset($field);
 
@@ -53,7 +53,7 @@ usage:	db_mysql_query_with_params(
 function db_query($query) {
 	$conn = db_mysql_connect();
 	$res = db_mysql_query($query, $conn);
-	mysql_close($conn);
+	mysqli_close($conn);
 	return $res;
 }
 
@@ -277,11 +277,11 @@ function get_sef_url_rules($conn, $section_type_id = '') {
 				FROM " . ($section_type_id?"seo_parameter2section_type p2t,":"") . "seo_parameter p
 				LEFT JOIN meta_table_field f ON p.meta_table_field_id = f.id
 				LEFT JOIN meta_table m ON f.meta_table_id = m.id
-				WHERE " . ($section_type_id?"p.id = p2t.seo_parameter_id AND p2t.section_type_id = '" . mysql_real_escape_string($section_type_id, $conn) . "'":"1") .
+				WHERE " . ($section_type_id?"p.id = p2t.seo_parameter_id AND p2t.section_type_id = '" . mysqli_real_escape_string($conn, $section_type_id) . "'":"1") .
 					(!$from_backend?" AND p.published <> 0 AND (p.activated <> 0 OR p.type_id <> '' OR p.meta_table_field_id IS NULL)":"") . "
 				ORDER BY " . ($section_type_id?"p2t.sort_num":"p.sort_num"), $conn);
 	$i = 0;
-	while ($row = mysql_fetch_assoc($rs)) {
+	while ($row = mysqli_fetch_assoc($rs)) {
 		$res[$row['sef_name']] = array(
 			'real_param_name' => $row['real_name'],
 			'values_table' => $row['table_name'],
@@ -303,7 +303,7 @@ function get_sef_url_rules($conn, $section_type_id = '') {
 			$res[$row['sef_name']]['options_field_name'] = 'meta_table_field_id';
 		}
 	}
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 	return isset($res)?$res:false;
 }
 

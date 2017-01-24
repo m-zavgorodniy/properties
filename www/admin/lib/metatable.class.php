@@ -30,11 +30,11 @@ class MetaTable {
 								title_list, title_addnew, title_in_delete_confirm,
 								frontend_onpage_num, frontend_sql_filter, frontend_sql_order
 							  FROM meta_table 
-							  WHERE id = '" . mysql_real_escape_string($this->table, $this->conn) . "'", $this->conn);
-		if ($this->table_meta = mysql_fetch_assoc($rs)) {
+							  WHERE id = '" . mysqli_real_escape_string($this->conn, $this->table) . "'", $this->conn);
+		if ($this->table_meta = mysqli_fetch_assoc($rs)) {
 			$r = true;
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		return $r?true:false;
 	}
 	
@@ -55,7 +55,7 @@ class MetaTable {
 								    FROM meta_table_field_group g, meta_table_field f
 								    LEFT JOIN meta_table_field l ON l.id = f.lookup_meta_table_field_id
 									LEFT JOIN unit u ON u.id = f.unit_id
-								    WHERE g.id = f.meta_table_field_group_id AND f.meta_table_id = '" . mysql_real_escape_string($this->table, $this->conn) . "' AND f.published <> 0
+								    WHERE g.id = f.meta_table_field_group_id AND f.meta_table_id = '" . mysqli_real_escape_string($this->conn, $this->table) . "' AND f.published <> 0
 								    ORDER BY " . ($this->is_list?"f.in_subquery_colnum,":"") . "g.sort_num, f.sort_num", $this->conn);
 
 		if ($this->table_meta['sql_filter']) {
@@ -68,7 +68,7 @@ class MetaTable {
 			// quick and dirty counting when filtering by external (many-to-many) fields at the front end
 			if ($this->is_front and $this->sql_filter) {
 				$lookup_join = "";
-				while ($row = mysql_fetch_assoc($rs_field)) {
+				while ($row = mysqli_fetch_assoc($rs_field)) {
 					if ('lookup_external' == $row['type_extra'] and false !== strpos($this->sql_filter, $row['field'])) {
 						$lookup_join .= " LEFT JOIN `" . $row['lookup_external_table'] . "` ON `" . $row['lookup_external_table'] . "`.`" . $this->table_meta['table_name'] . "_id` = `" . $this->table_meta['table_name'] . "`.id";
 					}
@@ -81,7 +81,7 @@ class MetaTable {
 			$lookup_join = "";
 			$subquery_order = array();
 			$alias_counter = 1;
-			while ($row = mysql_fetch_assoc($rs_field)) {
+			while ($row = mysqli_fetch_assoc($rs_field)) {
 				if (!$this->is_list or $row['is_in_subquery'] or $row['is_title'] or $this->is_front) {
 					$field = $row['field'];
 					if ((!($this instanceof Editor and !$row['readonly']) or $this instanceof DeletePreview) and ($row['type_extra'] == 'lookup' and !empty($row['lookup_meta_table_field']) or $row['type_extra'] == 'lookup_custom') or $row['type_extra'] == 'lookup_external' and !empty($row['lookup_external_table'])) {
@@ -210,22 +210,22 @@ class MetaTable {
 			}
 			$res = rtrim($res, ','); // remove trailing comma
 		}
-		mysql_free_result($rs_field);
+		mysqli_free_result($rs_field);
 		
 		$rs = db_mysql_query("DESC " . $this->table_meta['table_name'], $this->conn);
-		while ($row = mysql_fetch_assoc($rs)) {
+		while ($row = mysqli_fetch_assoc($rs)) {
 			if ('meta_site_lang_id' == $row['Field']) {
 				$res .= ", `" . $this->table_meta['table_name'] . "`.meta_site_lang_id";
 			}
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		$res .= " FROM `" . $this->table_meta['table_name'] . "`" . $lookup_join;
 		if ($this->id) { // !$this->is_list // single record
-			$res .= " WHERE `" . $this->table_meta['table_name'] . "`.id = '" . mysql_real_escape_string($this->id) . "'";
+			$res .= " WHERE `" . $this->table_meta['table_name'] . "`.id = '" . mysqli_real_escape_string($this->conn, $this->id) . "'";
 		} else {
 			if ($this->master_id === NULL) { // list of all records
 				if ($this->table_meta['filter_data_by_meta_table']) {
-					$res .= " WHERE `" . $this->table_meta['table_name'] . "`.meta_table_id = '" . mysql_real_escape_string(isset($_GET['meta_table_id'])?$_GET['meta_table_id']:$this->table) . "'";
+					$res .= " WHERE `" . $this->table_meta['table_name'] . "`.meta_table_id = '" . mysqli_real_escape_string($this->conn, isset($_GET['meta_table_id'])?$_GET['meta_table_id']:$this->table) . "'";
 				} else {
 					$res .= " WHERE 1";
 				}
@@ -234,20 +234,20 @@ class MetaTable {
 
 				// !! todo. what's on large tables?
 
-				// $res .= " WHERE `" . $this->table_meta['table_name'] . "`.`" . $this->master_table . "_id` = '" . mysql_real_escape_string($this->master_id) . "'";
-				$res .= " WHERE FIND_IN_SET('" . mysql_real_escape_string($this->master_id) . "', `" . $this->table_meta['table_name'] . "`.`" . $this->master_table . "_id`)" . ($this->table_meta['filter_data_by_meta_table']?" AND `" . $this->table_meta['table_name'] . "`.meta_table_id = '" .  $this->table . "'":'');
+				// $res .= " WHERE `" . $this->table_meta['table_name'] . "`.`" . $this->master_table . "_id` = '" . mysqli_real_escape_string($this->conn, $this->master_id) . "'";
+				$res .= " WHERE FIND_IN_SET('" . mysqli_real_escape_string($this->conn, $this->master_id) . "', `" . $this->table_meta['table_name'] . "`.`" . $this->master_table . "_id`)" . ($this->table_meta['filter_data_by_meta_table']?" AND `" . $this->table_meta['table_name'] . "`.meta_table_id = '" .  $this->table . "'":'');
 
 				
 		/*	} else { // many to many subquery
 				$res .= ",`" . $many2many_link_table . "`";
-				$res .= " WHERE `" . $many2many_link_table . "`.`" . $master_table . "_id` = '" . mysql_real_escape_string($this->id) . "' AND `" . $this->table_meta['table_name'] . "`.id = `" . $many2many_link_table . "`.`" . $this->table_meta['table_name'] . "_id`";*/
+				$res .= " WHERE `" . $many2many_link_table . "`.`" . $master_table . "_id` = '" . mysqli_real_escape_string($this->conn, $this->id) . "' AND `" . $this->table_meta['table_name'] . "`.id = `" . $many2many_link_table . "`.`" . $this->table_meta['table_name'] . "_id`";*/
 			}
 		}
 		if ($this->is_front and $this->table_meta['multi_lang']) {
 			$res .= " AND (`" . $this->table_meta['table_name'] . "`.meta_site_lang_id = '" . $this->front_lang_id . "' OR FIND_IN_SET('" . $this->front_lang_id . "', `" . $this->table_meta['table_name'] . "`.meta_site_lang_id))";
 		}
 		if ($this->table_meta['depends_on_site']) {
-			$res .= " AND `" . $this->table_meta['table_name'] . "`.meta_site_id = '" . mysql_real_escape_string($this->site_id) . "'";
+			$res .= " AND `" . $this->table_meta['table_name'] . "`.meta_site_id = '" . mysqli_real_escape_string($this->conn, $this->site_id) . "'";
 		}
 		if ($this->sql_filter) { //if ($this->sql_filter !== NULL) {
 			$res .= " AND " . $this->sql_filter;
@@ -278,10 +278,10 @@ class MetaTable {
 //	echo $res . '<br><br>';
 /*		$this->records = array();
 		$rs = db_mysql_query($res, $this->conn);
-		while ($row = mysql_fetch_assoc($rs)) {
+		while ($row = mysqli_fetch_assoc($rs)) {
 			$this->records[] = $row;
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		$this->record = $this->records[0];*/
 		
 		if (!$this->is_new) { // is_new is set if type of object is Editor (?)
@@ -293,12 +293,12 @@ class MetaTable {
 			// или считать по FOUND_ROWS()
 			$rs = db_mysql_query($res, $this->conn);
 			if ($count_only) {
-				if ($row = mysql_fetch_row($rs)) {
+				if ($row = mysqli_fetch_row($rs)) {
 					$this->rec_count = $row[0];
 					$r = true;
 				}
 			} else {
-				while ($row = mysql_fetch_assoc($rs)) {
+				while ($row = mysqli_fetch_assoc($rs)) {
 					$this->records[$row['id']] = $row;
 					$r = true;
 				}
@@ -307,7 +307,7 @@ class MetaTable {
 					$this->record = current($this->records);
 				}
 			}
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 		}
 		
 		return $r; 
@@ -356,10 +356,10 @@ class MetaTable {
 		$this->sub_query_meta = array();
 		if ('section' == $this->table and $this instanceof View) { // show only linked with section_type sub tables
 			$rs = db_mysql_query("SELECT t2t.detail_meta_table_id FROM meta_table2section_type t2s, meta_table2table t2t, section s WHERE t2s.meta_table_id = t2t.many2many_meta_table_id AND s.section_type_id = t2s.section_type_id AND s.id = " . $this->id, $this->conn);
-			while ($row = mysql_fetch_row($rs)) {
+			while ($row = mysqli_fetch_row($rs)) {
 				$tables_linked_to_section_type[$row[0]] = $row[0];
 			}
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 		}
 		$rs = db_mysql_query("SELECT detail_meta_table_id meta_table,
 							 	title_subquery, title_addnew, many2many_meta_table_id many2many_table,
@@ -367,9 +367,9 @@ class MetaTable {
 								condition_field, condition_value,
 								(SELECT sql_filter FROM meta_table WHERE meta_table.id = meta_table2table.detail_meta_table_id) sql_filter
 							  FROM meta_table2table
-							  WHERE meta_table_id = '" . mysql_real_escape_string($this->table) . "'
+							  WHERE meta_table_id = '" . mysqli_real_escape_string($this->conn, $this->table) . "'
 							  ORDER BY sort_num", $this->conn);
-		while ($row = mysql_fetch_assoc($rs)) {
+		while ($row = mysqli_fetch_assoc($rs)) {
 			$condition_values = explode(',', $row['condition_value']);
 			if ($row['condition_field'] and $row['condition_value'] and !in_array($this->record[$row['condition_field']], $condition_values)) {
 				continue;
@@ -385,36 +385,36 @@ class MetaTable {
 				$this->sub_query[$table_meta] = $sub_query;
 			}
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 	}
 
 	function get_site_path() {
 		$site_path = '/';
-		$rs = db_mysql_query("SELECT path FROM meta_site WHERE id = '" . mysql_real_escape_string($this->site_id) . "'", $this->conn);
-		if ($row = mysql_fetch_row($rs)) {
+		$rs = db_mysql_query("SELECT path FROM meta_site WHERE id = '" . mysqli_real_escape_string($this->conn, $this->site_id) . "'", $this->conn);
+		if ($row = mysqli_fetch_row($rs)) {
 			$site_path .= trim($row[0], '/');
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		return $site_path;
 	}
 	
 	function get_site_langs() {
 		// default language
-		$rs = db_mysql_query("SELECT lang_title FROM meta_site WHERE id = '" . mysql_real_escape_string($this->site_id) . "'", $this->conn);
-		if ($row = mysql_fetch_row($rs)) {
+		$rs = db_mysql_query("SELECT lang_title FROM meta_site WHERE id = '" . mysqli_real_escape_string($this->conn, $this->site_id) . "'", $this->conn);
+		if ($row = mysqli_fetch_row($rs)) {
 			$site_lang = $row[0];
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		$this->site_langs_all = array('' => $site_lang);
 		
 		// extra languages
 		$res = array();
-		$rs = db_mysql_query("SELECT id, title FROM meta_site_lang WHERE meta_site_id = '" . mysql_real_escape_string($this->site_id) . "'", $this->conn);
-		while ($row = mysql_fetch_assoc($rs)) {
+		$rs = db_mysql_query("SELECT id, title FROM meta_site_lang WHERE meta_site_id = '" . mysqli_real_escape_string($this->conn, $this->site_id) . "'", $this->conn);
+		while ($row = mysqli_fetch_assoc($rs)) {
 			$res[$row['id']] = $row['title'];
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		$this->site_langs_extra = $res;
 		$this->site_langs_all = array_merge($this->site_langs_all , $this->site_langs_extra);
@@ -435,7 +435,7 @@ class MetaTable {
 	function MetaTable($table, $site_id, $id = NULL, $is_list = false, $sql_filter = NULL, $master_table = NULL, $master_id = NULL, $many2many_table = NULL, $records_from = NULL, $records_on_page = NULL, $conn = NULL, $front_lang_id = '') {
 		if (!$conn) {
 			$this->conn = db_mysql_connect();
-			register_shutdown_function('mysql_close', $this->conn);
+			register_shutdown_function('mysqli_close', $this->conn);
 		} else {
 			$this->conn = $conn;
 		}

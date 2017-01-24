@@ -14,10 +14,10 @@ if (!isset($_SESSION['admin_id'])) {
 	$query = "SELECT u.id, u.login, u.enabled, ug.users_group_id, u.name, u.middlename, u.surname, s.id session_id, u.email, s.ip session_ip
 			  FROM user_session s, user u
 			  LEFT JOIN user2users_group ug ON u.id = ug.user_id
-			  WHERE s.id = '" . mysql_real_escape_string($_COOKIE[SESSION_ID_COOKIE_NAME], $conn) . "' AND UNIX_TIMESTAMP(s.updated) >= " . (time() - SESSION_INACTIVITY_TIMEOUT) . " AND s.user_id = u.id
+			  WHERE s.id = '" . mysqli_real_escape_string($conn, $_COOKIE[SESSION_ID_COOKIE_NAME]) . "' AND UNIX_TIMESTAMP(s.updated) >= " . (time() - SESSION_INACTIVITY_TIMEOUT) . " AND s.user_id = u.id
 			  LIMIT 1";
 	$rs = db_mysql_query($query, $conn);
-	if ($row = mysql_fetch_assoc($rs)) {
+	if ($row = mysqli_fetch_assoc($rs)) {
 		if ($row['enabled'] != 0 and $row['users_group_id'] !== NULL) {
 			$_SESSION['admin_id'] = $row['id'];
 			$_SESSION['ip'] = $row['session_ip'];
@@ -31,8 +31,8 @@ if (!isset($_SESSION['admin_id'])) {
 			db_mysql_query("UPDATE user_session SET id = '" . session_id() . "', updated = '" . date("Y-m-d H:i:s") . "' WHERE id = '" . $old_session_id . "'", $conn);
 		}
 	}
-	mysql_free_result($rs);
-	mysql_close($conn);
+	mysqli_free_result($rs);
+	mysqli_close($conn);
 } else if ($_SESSION['last_access_time'] < time() - SESSION_INACTIVITY_TIMEOUT) { // nb! only after 'if (!isset($_SESSION['admin_id'])) {...'
 	// session expired
 	close_user_session();
@@ -53,11 +53,11 @@ if (!isset($_SESSION['admin_id']) or (SESSION_BIND_TO_IP and $_SESSION['ip'] != 
 			  WHERE u.id = " . (int)$_SESSION['admin_id'] . " AND u.enabled <> 0
 			  GROUP BY u.id";
 	$rs = db_mysql_query($query, $conn);
-	if (!($row = mysql_fetch_row($rs)) or ($row[0] and (false === strpos($row[0], $_GET['type'])) and $_GET['type'] != 'password')) {
+	if (!($row = mysqli_fetch_row($rs)) or ($row[0] and (false === strpos($row[0], $_GET['type'])) and $_GET['type'] != 'password')) {
 		define('ACCESS_ONLY', $row[0]);
 	}
-	mysql_free_result($rs);
-	mysql_close($conn);
+	mysqli_free_result($rs);
+	mysqli_close($conn);
 
 	if (defined('ACCESS_ONLY') and defined('AJAX_REQUEST')) {
 		session_write_close();
@@ -106,7 +106,7 @@ session_write_close();
 function close_user_session() {
 	$conn = db_mysql_connect();
 	db_mysql_query("DELETE FROM user_session WHERE id = '" . session_id() . "'", $conn);
-	mysql_close($conn);
+	mysqli_close($conn);
 	session_destroy();
 	setcookie(SESSION_ID_COOKIE_NAME, '', 1, '/', $_SERVER['HTTP_HOST'], isset($_SERVER['HTTPS']), true); // remove cookie
 	if (!defined('AJAX_REQUEST')) {
