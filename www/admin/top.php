@@ -31,9 +31,9 @@
         <div class="cm-panel-site">
 <?			$conn = db_mysql_connect();
 			$rs = db_mysql_query("SELECT id, title FROM meta_site WHERE 1", $conn);
-			//if (mysql_num_rows($rs) > 1) {
+			//if (mysqli_num_rows($rs) > 1) {
 				$site_select = '';
-				while($row = mysql_fetch_row($rs)) {
+				while($row = mysqli_fetch_row($rs)) {
 					if (SITE_ID == $row[0]) { ?>
 						<div class="cm-panel-site-current"><?=$row[1]?></div>
 		<?				} else {
@@ -48,8 +48,8 @@
 			<?	} ?>
                 <div class="cm-panel-separator"></div>
 		<?	//}
-			mysql_free_result($rs); 
-			mysql_close($conn); ?>
+			mysqli_free_result($rs); 
+			mysqli_close($conn); ?>
         </div>
 		<a href="doclist.php?type=listing_type" target="tree" onClick="setFrame()"><img src="images/icons/application_view_list.png" alt="">Недвижимость</a>
     <?	// ! hardcode for moscowkey

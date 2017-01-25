@@ -586,7 +586,7 @@ class Editor extends MetaTable {
 				if (is_array($field_values)) {
 					foreach($field_values as &$field_value) {
 						if ($value and 'NULL' != $value) {
-							$update_external[] = "INSERT INTO `" . $this->record_meta[$field]['lookup_external_table'] . "` (`" . $this->table_meta['table_name'] . "_id`, `" . $this->record_meta[$field]['lookup_meta_table'] . "_id`) VALUES ('{master_id}', '" . mysql_real_escape_string($field_value, $this->conn) . "');\n";
+							$update_external[] = "INSERT INTO `" . $this->record_meta[$field]['lookup_external_table'] . "` (`" . $this->table_meta['table_name'] . "_id`, `" . $this->record_meta[$field]['lookup_meta_table'] . "_id`) VALUES ('{master_id}', '" . mysqli_real_escape_string($this->conn, $field_value) . "');\n";
 						}
 					}
 					unset($field_value);
@@ -607,7 +607,7 @@ class Editor extends MetaTable {
 		if ($exception === NULL) {
 			if ($this->table_meta['depends_on_site']) {
 				$fields_line .= "meta_site_id";
-				$values_line .= "'" . mysql_real_escape_string($this->site_id, $this->conn) . "'";
+				$values_line .= "'" . mysqli_real_escape_string($this->conn, $this->site_id) . "'";
 			} else {
 				$fields_line = rtrim($fields_line, ','); // remove trailing comma
 				$values_line = rtrim($values_line, ',');
@@ -628,10 +628,10 @@ class Editor extends MetaTable {
 			if ($res === true) {
 				if (!$this->input_params['id']) {
 					$rs_id = db_mysql_query("SELECT LAST_INSERT_ID()", $this->conn);
-					if ($row = @mysql_fetch_array($rs_id))
+					if ($row = @mysqli_fetch_array($rs_id))
 //						$_SESSION["lastInsertID"] = $row[0];
 						$this->inserted_id = $row[0];
-					mysql_free_result($rs_id);
+					mysqli_free_result($rs_id);
 				} else {
 					$this->inserted_id = $this->input_params['id'];
 //					$_SESSION["lastInsertID"] = $this->input_params['id'];
@@ -655,8 +655,8 @@ class Editor extends MetaTable {
 				// SEO
 				// what's on edit? nothing, i guess
 				if ($sef_rule_matched) {
-					if (true !== ($res = db_mysql_query("UPDATE `" . $sef_rule_matched['values_table'] . "` SET `" . $sef_rule_matched['values_target_field'] . "` = '" . mysql_real_escape_string(make_safe_url(transliterate($sef_source_value)), $this->conn) . "' WHERE id = " . $this->inserted_id, $this->conn))) {
-						$res = db_mysql_query("UPDATE `" . $sef_rule_matched['values_table'] . "` SET `" . $sef_rule_matched['values_target_field'] . "` = '" . mysql_real_escape_string(make_safe_url($this->inserted_id . '-' . transliterate($sef_source_value)), $this->conn) . "' WHERE id = " . $this->inserted_id, $this->conn);
+					if (true !== ($res = db_mysql_query("UPDATE `" . $sef_rule_matched['values_table'] . "` SET `" . $sef_rule_matched['values_target_field'] . "` = '" . mysqli_real_escape_string($this->conn, make_safe_url(transliterate($sef_source_value))) . "' WHERE id = " . $this->inserted_id, $this->conn))) {
+						$res = db_mysql_query("UPDATE `" . $sef_rule_matched['values_table'] . "` SET `" . $sef_rule_matched['values_target_field'] . "` = '" . mysqli_real_escape_string($this->conn, make_safe_url($this->inserted_id . '-' . transliterate($sef_source_value))) . "' WHERE id = " . $this->inserted_id, $this->conn);
 					}
 				}
 				
@@ -684,22 +684,22 @@ class Editor extends MetaTable {
 			if ($this->record_meta[$field]['type'] == 'lookup_external' and $value != $this->init_params[$field]) {
 				if (isset($this->init_params[$field]) and !($this->table == 'meta_table' and $field == 'section_type_id')) { // little hack for meta_table.section_type_id - it's very handy, though the meta_table2section_type link table has one extra field
 					$rs = db_mysql_query("DESC `" . $this->record_meta[$field]['lookup_external_table'] . "`", $this->conn);
-					while($row_desc = mysql_fetch_row($rs)) {
+					while($row_desc = mysqli_fetch_row($rs)) {
 						// todo - update without deleting (?)
 						if ($row_desc[0] != 'id' and $row_desc[0] != $this->table_meta['table_name'] . "_id" and $row_desc[0] != $this->record_meta[$field]['lookup_meta_table'] . "_id") {
 							$exception = "Can't update external lookup field (" . $field . "): there are some extra data fields in the link table (" . $this->record_meta[$field]['lookup_external_table'] . ")"; 
 							break;
 						}
 					}
-					mysql_free_result($rs);
+					mysqli_free_result($rs);
 				}
 				if ($exception === NULL) {
-					$update_external[] = "DELETE FROM `" . $this->record_meta[$field]['lookup_external_table'] . "` WHERE `" . $this->table_meta['table_name'] . "_id` = '" . mysql_real_escape_string($this->id, $this->conn) . "';\n";
+					$update_external[] = "DELETE FROM `" . $this->record_meta[$field]['lookup_external_table'] . "` WHERE `" . $this->table_meta['table_name'] . "_id` = '" . mysqli_real_escape_string($this->conn, $this->id) . "';\n";
 					$field_values = explode(",", trim($value, "'"));
 					if (is_array($field_values)) {
 						foreach($field_values as &$field_value) {
 							if ($value and 'NULL' != $value) {
-								$update_external[] = "INSERT INTO `" . $this->record_meta[$field]['lookup_external_table'] . "` (`" . $this->table_meta['table_name'] . "_id`, `" . $this->record_meta[$field]['lookup_meta_table'] . "_id`) VALUES ('" . mysql_real_escape_string($this->id, $this->conn) . "', '" . mysql_real_escape_string($field_value, $this->conn) . "');\n";
+								$update_external[] = "INSERT INTO `" . $this->record_meta[$field]['lookup_external_table'] . "` (`" . $this->table_meta['table_name'] . "_id`, `" . $this->record_meta[$field]['lookup_meta_table'] . "_id`) VALUES ('" . mysqli_real_escape_string($this->conn, $this->id) . "', '" . mysqli_real_escape_string($this->conn, $field_value) . "');\n";
 							}
 						}
 						unset($field_value);
@@ -718,7 +718,7 @@ class Editor extends MetaTable {
 				db_mysql_query("START TRANSACTION", $this->conn);
 			}
 		
-			$res = db_mysql_query("UPDATE `" . $this->table_meta['table_name'] . "` SET " . $update_line . " WHERE id = '" . mysql_real_escape_string($this->id, $this->conn) . "'", $this->conn);
+			$res = db_mysql_query("UPDATE `" . $this->table_meta['table_name'] . "` SET " . $update_line . " WHERE id = '" . mysqli_real_escape_string($this->conn, $this->id) . "'", $this->conn);
 
 			if ($update_external) {
 				if (true === $res) {
@@ -818,9 +818,9 @@ class Editor extends MetaTable {
 				$rs = db_mysql_query($sql_custom, $conn);
 				if ($is_multi) {
 					$current_ids = explode(',', $current_id);
-					$options_in_col = ceil(mysql_num_rows($rs) / 3);
+					$options_in_col = ceil(mysqli_num_rows($rs) / 3);
 				}
-				while ($row = mysql_fetch_row($rs)) {
+				while ($row = mysqli_fetch_row($rs)) {
 					if (!$is_multi) {
 						if ($row[0] === '') $no_empty_line = true;
 						$res .= '<option value="'.$row[0].'"'.($row[0]==$current_id?' selected':'').'>'.htmlspecialchars($row[1]).'</option>';
@@ -835,10 +835,10 @@ class Editor extends MetaTable {
 //						}
 					}
 				}
-				mysql_free_result($rs);
+				mysqli_free_result($rs);
 			} else {
-				$rs_meta = db_mysql_query("SELECT id, table_name, depends_on_site FROM meta_table WHERE table_name = '" . mysql_real_escape_string($meta_table_name, $conn) . "'", $conn); // WHERE id = ...
-				if ($row_meta = mysql_fetch_assoc($rs_meta)) {
+				$rs_meta = db_mysql_query("SELECT id, table_name, depends_on_site FROM meta_table WHERE table_name = '" . mysqli_real_escape_string($conn, $meta_table_name) . "'", $conn); // WHERE id = ...
+				if ($row_meta = mysqli_fetch_assoc($rs_meta)) {
 					$table = $row_meta['id'];
 					$table_name = $row_meta['table_name'];
 					$select_by_site = $row_meta['depends_on_site'];
@@ -847,35 +847,35 @@ class Editor extends MetaTable {
 						$res = Editor::lookup_tree($table_name, $field_name, $select_by_site?$site_id:NULL, $current_id, $sql_lookup_filter, $conn);
 					} else {
 						if ($select_by_site) {
-							$lookup_where = "meta_site_id = '" . mysql_real_escape_string($site_id, $conn) . "'";
+							$lookup_where = "meta_site_id = '" . mysqli_real_escape_string($conn, $site_id) . "'";
 						} else {
 							$lookup_where = "1";
 						}
 						// todo - sort_num, is_group_title (and others, like id) are reserved names after all - handle it somehow
 						// maybe sort by this field automatically everywhere if type_extra='sort' (set default_order_num=0?? 0 is just the number on top)
-						$rs_is_order = db_mysql_query("SELECT 1 FROM meta_table_field WHERE meta_table_id = '" . mysql_real_escape_string($table) . "' AND field = 'sort_num' AND type_extra='sort' AND published <> 0 LIMIT 1", $conn);
-						if (mysql_num_rows($rs_is_order)) {
+						$rs_is_order = db_mysql_query("SELECT 1 FROM meta_table_field WHERE meta_table_id = '" . mysqli_real_escape_string($conn, $table) . "' AND field = 'sort_num' AND type_extra='sort' AND published <> 0 LIMIT 1", $conn);
+						if (mysqli_num_rows($rs_is_order)) {
 							$sort_by_order = true;
 						}
-						mysql_free_result($rs_is_order);
-						$rs_is_group_title = db_mysql_query("SELECT 1 FROM meta_table_field WHERE meta_table_id = '" . mysql_real_escape_string($table) . "' AND field = 'is_group_title' AND published <> 0 LIMIT 1", $conn);
-						if (mysql_num_rows($rs_is_group_title)) {
+						mysqli_free_result($rs_is_order);
+						$rs_is_group_title = db_mysql_query("SELECT 1 FROM meta_table_field WHERE meta_table_id = '" . mysqli_real_escape_string($conn, $table) . "' AND field = 'is_group_title' AND published <> 0 LIMIT 1", $conn);
+						if (mysqli_num_rows($rs_is_group_title)) {
 							$is_group_title_field = true;
 						}
-						mysql_free_result($rs_is_group_title);
-/*						if (false !== mysql_query("SELECT sort_num FROM `" . $table_name . "` WHERE 1 LIMIT 1", $conn)) {
+						mysqli_free_result($rs_is_group_title);
+/*						if (false !== mysqli_query($conn, "SELECT sort_num FROM `" . $table_name . "` WHERE 1 LIMIT 1")) {
 							$sort_by_order = true;
 						}
-						if (false !== mysql_query("SELECT is_group_title FROM `" . $table_name . "` WHERE 1 LIMIT 1", $conn)) {
+						if (false !== mysqli_query($conn, "SELECT is_group_title FROM `" . $table_name . "` WHERE 1 LIMIT 1")) {
 							$is_group_title_field = true;
 						}*/
 						// todo. possible security issue - unescaped $sql_lookup_filter
 						$rs = db_mysql_query($sql_custom?$sql_custom:"SELECT id, `" . $field_name . "`" . ($is_group_title_field?", is_group_title":"") . " FROM `" . $table_name . "` WHERE " . $lookup_where . ($sql_lookup_filter?" AND ".$sql_lookup_filter:'') . " ORDER BY " . ($sort_by_order?'sort_num,':'') . "2", $conn);
 						if ($is_multi) {
 							$current_ids = explode(',', $current_id);
-							$options_in_col = ceil(mysql_num_rows($rs) / 3);
+							$options_in_col = ceil(mysqli_num_rows($rs) / 3);
 						}
-						while ($row = mysql_fetch_row($rs)) {
+						while ($row = mysqli_fetch_row($rs)) {
 							if (!$is_multi) {
 								if ($row[0] === '') $no_empty_line = true;
 								$res .= '<option value="'.$row[0].'"'.($row[0]==$current_id?' selected':'').'>'.htmlspecialchars($row[1]).'</option>';
@@ -890,10 +890,10 @@ class Editor extends MetaTable {
 //								}
 							}
 						}
-						mysql_free_result($rs);
+						mysqli_free_result($rs);
 					}
 				}
-				mysql_free_result($rs_meta);
+				mysqli_free_result($rs_meta);
 			}
 			if ($res) {
 				if ($is_multi) {
@@ -909,43 +909,43 @@ class Editor extends MetaTable {
 /*	function lookup_external($table_name, $external_table_name, $field_name, $site_id, $sql_lookup_filter, $conn) {
 		// let this kind of lookup be always multy
 		if ($site_id !== NULL) {
-			$lookup_where = " AND meta_site_id = '" . mysql_real_escape_string($site_id, $conn) . "'";
+			$lookup_where = " AND meta_site_id = '" . mysqli_real_escape_string($conn, $site_id) . "'";
 		} else {
 			$lookup_where = "";
 		}
 		$rs = db_mysql_query("SELECT id, `" . $field_name . "` FROM `" . $table_name . "` WHERE 1" . $lookup_where . ($sql_lookup_filter?" AND ".$sql_lookup_filter:'') . " ORDER BY 2", $conn);
 		$res = '<select name="' . $field_name . '">';
-		while ($row = mysql_fetch_row($rs)) {
+		while ($row = mysqli_fetch_row($rs)) {
 			$res .= '<option value="'.$row[0].'">'.htmlspecialchars($row[1]).'</option>';
 		}
 		$res = '</select>';
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		return $res;
 	}*/
 
 	function lookup_tree($table_name, $field_name, $site_id, $current_id, $sql_lookup_filter, $conn) {
 		if ($site_id !== NULL) {
-			$lookup_where = " AND meta_site_id = '" . mysql_real_escape_string($site_id, $conn) . "'";
+			$lookup_where = " AND meta_site_id = '" . mysqli_real_escape_string($conn, $site_id) . "'";
 		} else {
 			$lookup_where = "";
 		}
 		$rs = db_mysql_query("SELECT id, `" . $field_name . "` FROM `" . $table_name . "` WHERE `" . $table_name . "_id` IS NULL" . $lookup_where . ($sql_lookup_filter?" AND ".$sql_lookup_filter:'') . " ORDER BY 2", $conn);
-		while ($row = mysql_fetch_row($rs)) {
+		while ($row = mysqli_fetch_row($rs)) {
 			$res .= '<option value="'.$row[0].'"'.($row[0]==$current_id?' selected':'').'>'.htmlspecialchars($row[1]).'</option>';
 			$res .= Editor::lookup_tree_in($table_name, $field_name, $row[0], $current_id, $sql_lookup_filter, "", $conn);
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		return $res;
 	}
 	
 	function lookup_tree_in($table_name, $field_name, $id, $current_id, $sql_lookup_filter, $level_pad, $conn) {
 		$res = "";
-		$rs = db_mysql_query("SELECT s.id, s.`" . $field_name . "` FROM `" . $table_name . "` s WHERE s.`" . $table_name . "_id`  = '" . mysql_real_escape_string($id, $conn) . "'" . ($sql_lookup_filter?" AND ".$sql_lookup_filter:'') . " ORDER BY 2", $conn);
-		while ($row = mysql_fetch_row($rs)) {
+		$rs = db_mysql_query("SELECT s.id, s.`" . $field_name . "` FROM `" . $table_name . "` s WHERE s.`" . $table_name . "_id`  = '" . mysqli_real_escape_string($conn, $id) . "'" . ($sql_lookup_filter?" AND ".$sql_lookup_filter:'') . " ORDER BY 2", $conn);
+		while ($row = mysqli_fetch_row($rs)) {
 			$res .= '<option value="'.$row[0].'"'.($row[0]==$current_id?' selected':'').'>'.$level_pad."--".htmlspecialchars($row[1]).'</option>';
 			$res .= Editor::lookup_tree_in($table_name, $field_name, $row[0], $current_id, $sql_lookup_filter, $level_pad."--", $conn);
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		return $res;
 	}
 	
@@ -1006,13 +1006,13 @@ class Editor extends MetaTable {
 	}
 
 	function prepare_mysql_meta(&$fields, &$null_fields, $conn) {
-		$rs_meta = mysql_query("DESC `" . $this->table_meta['table_name'] . "`", $conn);
-		while ($row = mysql_fetch_assoc($rs_meta)) {
+		$rs_meta = mysqli_query($conn, "DESC `" . $this->table_meta['table_name'] . "`");
+		while ($row = mysqli_fetch_assoc($rs_meta)) {
 			$fields[$row['Field']] = $row['Type'];
 //			if ("YES" == strtoupper($row['Null']))
 				$null_fields[$row['Field']] = $row['Default'];
 		}
-		mysql_free_result($rs_meta);
+		mysqli_free_result($rs_meta);
 	}
 	
 	function prepare_field_value($value, $field, &$fields, &$null_fields, &$exception, $conn) {
@@ -1024,7 +1024,7 @@ class Editor extends MetaTable {
 				$exception = "Column '" . $field . "' cannot be null";
 				return false;
 			}*/
-			return $null_fields[$field] === NULL ? "NULL" : "'" . mysql_real_escape_string($null_fields[$field], $conn) . "'";
+			return $null_fields[$field] === NULL ? "NULL" : "'" . mysqli_real_escape_string($conn, $null_fields[$field]) . "'";
 		}
 		if (false !== strpos($fields[$field], 'int(')) {
 			$value = str_replace(' ', '', $value);
@@ -1061,7 +1061,7 @@ class Editor extends MetaTable {
 			}
 			return "STR_TO_DATE('" . $value . "', '" . get_date_format() . "')";
 		}
-		return "'" . mysql_real_escape_string($value, $conn) . "'";
+		return "'" . mysqli_real_escape_string($conn, $value) . "'";
 	}
 
 	function Editor($meta_table, $site_id, $id, $get_params, $post_params) {

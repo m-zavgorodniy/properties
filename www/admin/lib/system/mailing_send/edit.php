@@ -30,14 +30,14 @@ class CustomEditor extends Editor {
 			
 			$recepients = array();
 			$rs = db_mysql_query("SELECT email FROM mailing_list WHERE enabled <> 0", $this->conn);
-			while ($row = mysql_fetch_assoc($rs)) {
+			while ($row = mysqli_fetch_assoc($rs)) {
 				$r = make_mail_recepients($row['email']);
 				foreach ($r as &$recepient) {
 					$recepients[] = $recepient;
 				}
 				unset($recepient);
 			}
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 			$recepients = array_unique($recepients);
 			$this->input_params['mailing_list'] = implode(',', $recepients);
 

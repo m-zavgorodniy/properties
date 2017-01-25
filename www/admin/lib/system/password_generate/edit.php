@@ -20,7 +20,7 @@ class CustomEditor extends Editor {
 		$salt = generate_passkey();
 		
 		db_mysql_query("START TRANSACTION", $this->conn); // rollback if error occurs while sending new password to user
-		$res = db_mysql_query("UPDATE user SET password = '" . md5($salt . $pass) . "', passkey = '" . mysql_real_escape_string($salt) . "' WHERE id = " . $this->id, $this->conn);
+		$res = db_mysql_query("UPDATE user SET password = '" . md5($salt . $pass) . "', passkey = '" . mysqli_real_escape_string($this->conn, $salt) . "' WHERE id = " . $this->id, $this->conn);
 		if ($res === true) {
 			$message = "Здравствуйте, " . $this->input_params['name'] . " " . $this->input_params['surname'] . ".\r\n\r\nВаш новый пароль: " . $pass;
 			if (!@mail_send($this->input_params['email'], "Новый пароль", $message)) {

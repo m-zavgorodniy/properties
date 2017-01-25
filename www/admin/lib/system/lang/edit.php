@@ -5,11 +5,11 @@ class CustomEditor extends Editor {
 		// ! todo - привязка таблиц к сайту. Системные таблицы - для всех сайтов. Пока тупо для всех таблиц
 		
 		$rs = db_mysql_query("SELECT f.field, m.table_name FROM meta_table_field f, meta_table m WHERE m.id = f.meta_table_id AND f.multi_lang <> 0 AND f.published <> 0", $this->conn);
-		while ($row = mysql_fetch_assoc($rs)) {
+		while ($row = mysqli_fetch_assoc($rs)) {
 			$table = $row['table_name'];
 			$field = '';
 			$rs_desc = db_mysql_query("DESC `" . $table . "`", $this->conn);
-			while ($row_desc = mysql_fetch_assoc($rs_desc)) {
+			while ($row_desc = mysqli_fetch_assoc($rs_desc)) {
 				if ($row_desc['Field'] == $row['field']) {
 					$field = $row_desc['Field'];
 					$field_type = $row_desc['Type'];
@@ -18,7 +18,7 @@ class CustomEditor extends Editor {
 					break;
 				}
 			}
-			mysql_free_result($rs_desc);
+			bvfree_result($rs_desc);
 			
 			if ($field) {
 				if (true !== ($r = db_mysql_query("ALTER TABLE `" . $table . "` ADD `" . $field . "_" . $this->input_params['id'] . "` " . $field_type . (!$field_nullable?" NOT NULL":"") . (NULL !== $field_default?" DEFAULT '" . $field_default . "'":($field_nullable?" DEFAULT NULL":'')) . " AFTER  `" . $field . "`", $this->conn))) {
@@ -33,7 +33,7 @@ class CustomEditor extends Editor {
 			}
 
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 
 		parent::on_update_success();
 	}

@@ -5,9 +5,9 @@
 	function get_section_link($section_id, $conn) {
 		$rs = db_mysql_query("SELECT url FROM section WHERE id = " . (int)$section_id, $conn);
 		$url = "";
-		if ($row = mysql_fetch_row($rs))
+		if ($row = mysqli_fetch_row($rs))
 			$url = $row[0];
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		return $url;
 	}
 ?>

@@ -46,8 +46,8 @@ class MetaTableSiteLink extends MetaTable {
 									}*/
 								}
 								if (!$is_range) {
-									$this->table_meta['frontend_sql_filter'] = preg_replace("/{\s*" . $param_name . "\s*}/", "'" . mysql_real_escape_string($param_value, $this->conn) . "'", $this->table_meta['frontend_sql_filter']);
-								//	$this->table_meta['frontend_sql_filter'] = preg_replace("/{\s*" . $param_name . "\s*}/", $embrace_qoutes . mysql_real_escape_string($param_value, $this->conn) . $embrace_qoutes, $this->table_meta['frontend_sql_filter']);
+									$this->table_meta['frontend_sql_filter'] = preg_replace("/{\s*" . $param_name . "\s*}/", "'" . mysqli_real_escape_string($this->conn, $param_value) . "'", $this->table_meta['frontend_sql_filter']);
+								//	$this->table_meta['frontend_sql_filter'] = preg_replace("/{\s*" . $param_name . "\s*}/", $embrace_qoutes . mysqli_real_escape_string($this->conn, $param_value) . $embrace_qoutes, $this->table_meta['frontend_sql_filter']);
 								}
 								$do_filter = true;
 							} else {

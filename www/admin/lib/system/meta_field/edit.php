@@ -10,10 +10,10 @@ class CustomEditor extends Editor {
 		$this->set_record_meta('field_old', array('type' => "hidden", 'default' => $this->input_params['field']));
 
 		$rs = db_mysql_query("SELECT table_name FROM meta_table WHERE id = '" . $this->input_params['meta_table_id'] . "'", $this->conn);
-		if ($row = mysql_fetch_assoc($rs)) {
+		if ($row = mysqli_fetch_assoc($rs)) {
 			$this->set_record_meta('table_name', array('type' => "hidden", 'default' => $row['table_name']));
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		$this->set_record_meta('type_extra', array('type' => "lookup", 'options_custom' => array(
 			 '' => "Текстовое поле",
@@ -128,7 +128,7 @@ class CustomEditor extends Editor {
 			}
 
 			$rs = db_mysql_query("DESC `" . $table . "`", $this->conn);
-			while ($row = mysql_fetch_assoc($rs)) {
+			while ($row = mysqli_fetch_assoc($rs)) {
 				if ($field == $row['Field']) {
 					$field_type = $row['Type'];
 					$field_nullable = ('YES' == strtoupper($row['Null']));
@@ -136,7 +136,7 @@ class CustomEditor extends Editor {
 					break;
 				}
 			}
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 			if (!isset($field_type)) {
 				$this->set_alert("Ошибка: поля '" . $field . "' нет в таблице!");
 				if (isset($this->post_params['__create_field'])) {
@@ -163,8 +163,8 @@ class CustomEditor extends Editor {
 	function on_update_success() {
 		if ($this->input_params['published'] and $this->input_params['type_extra'] != 'lookup_external' and $this->input_params['type_extra'] != 'calc' and $this->input_params['type_extra'] != 'calc_boolean' and $this->input_params['type_extra'] != 'calc_view') {
 			$rs = db_mysql_query("SELECT * FROM `" . $this->input_params['table_name'] . "` WHERE 1 LIMIT 1", $this->conn);
-			$row = mysql_fetch_assoc($rs);
-			mysql_free_result($rs);
+			$row = mysqli_fetch_assoc($rs);
+			mysqli_free_result($rs);
 			if ($row and !isset($row[$this->input_params['field']])) {
 				$this->set_alert("Поля '" . $this->input_params['table_name'] . "." . $this->input_params['field'] . "' в базе данных не существует. Создать его?");
 				$this->set_record_meta('__create_field',  array('type' => 'hidden', 'default' => $this->input_params['table_name'] . "." . $this->input_params['field']));

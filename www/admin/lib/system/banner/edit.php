@@ -5,7 +5,7 @@ class CustomEditor extends Editor {
 		parent::get_init_input();
 
 		$rs = db_mysql_query("SELECT w, h FROM banner_type WHERE id = '" . $this->init_params['banner_type_id'] . "'", $this->conn);
-		if ($row = mysql_fetch_assoc($rs)) {
+		if ($row = mysqli_fetch_assoc($rs)) {
 			if (isset($this->record_meta['img_src'])) {
 				$this->set_record_meta('img_src', array('title' => $this->record_meta['img_src']['title'] . ' (' . $row['w'] . 'x' . $row['h'] . ')'));
 			}
@@ -13,7 +13,7 @@ class CustomEditor extends Editor {
 				$this->set_record_meta('flash_src', array('title' => $this->record_meta['flash_src']['title'] . ' (' . $row['w'] . 'x' . $row['h'] . ')'));
 			}
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 
 	}
 

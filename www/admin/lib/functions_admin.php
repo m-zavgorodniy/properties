@@ -20,9 +20,9 @@ function get_site_title($conn = NULL) {
 	$query = "SELECT meta_title FROM section WHERE section_id IS NULL AND meta_site_id = ''";
 	$rs = ($conn !== NULL?db_mysql_query($query, $conn):db_query($query));
 	$title = '';
-	if ($row = mysql_fetch_row($rs))
+	if ($row = mysqli_fetch_row($rs))
 		$title = $row[0];
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 	return $title;
 }
 
@@ -33,13 +33,13 @@ function get_date_format() {
 
 function set_site_path($site_id) {
 	$conn = db_mysql_connect();
-	$rs = db_mysql_query("SELECT path, path_files FROM meta_site WHERE id = '" . mysql_real_escape_string($site_id) . "'", $conn);
-	if ($row = mysql_fetch_assoc($rs)) {
+	$rs = db_mysql_query("SELECT path, path_files FROM meta_site WHERE id = '" . mysqli_real_escape_string($conn, $site_id) . "'", $conn);
+	if ($row = mysqli_fetch_assoc($rs)) {
 		// ! admin\htmleditor\editor\filemanager\connectors\php\config.php is modified to get the site path from the session - look for $Config['UserFilesPath']
 		$_SESSION['site_path'] = $row['path_files']?$row['path_files']:$row['path'];
 	}
-	mysql_free_result($rs);
-	mysql_close($conn);
+	mysqli_free_result($rs);
+	mysqli_close($conn);
 	
 	$_SESSION['site_warning_show'] = 1;
 }

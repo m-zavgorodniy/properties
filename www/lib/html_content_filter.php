@@ -117,8 +117,8 @@ function typo_filter($str, $locale = '') {
 		$str = str_replace(array('«', '»'), array($lq, $rq), $str);
 	}
 
-	$str = preg_replace_callback("/<([^>]*)>/s", function($m) {return '<'.str_replace('"', '¬', '"' . $m[1] .'"') .'>';}, $str);
-	$str = preg_replace_callback( "/<script(.*?)<\/script>/is", function($m) {return '<script'.str_replace('"', '¬', '"' . $m[1] . '"').'</script>';}, $str); // escapes single qoutes inside the script (and everywhere). todo
+	$str = preg_replace_callback("/<([^>]*)>/s", function($m) {return '<'.str_replace('"', '¬', $m[1]) .'>';}, $str);
+	$str = preg_replace_callback( "/<script(.*?)<\/script>/is", function($m) {return '<script'.str_replace('"', '¬', $m[1]).'</script>';}, $str); // escapes single qoutes inside the script (and everywhere). todo
 	$str = preg_replace("/(^|>|[(\s\"])(\")([^\"]*)([^\s\"(])(\")/", "\\1" . $lq . "\\3\\4" . $rq . "", $str); // nested quotes are not proccessed. todo
 	
 	$str = str_replace('¬', '"', $str);

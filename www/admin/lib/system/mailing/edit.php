@@ -14,10 +14,10 @@ class CustomEditor extends Editor {
 			$this->alert = 'Письмо находится в очереди отправки.';
 		} else if ($this->is_new) {
 			$rs = db_mysql_query("SELECT value FROM mailing_setting WHERE id = 'mailing_footer'", $this->conn);
-			if ($row = mysql_fetch_row($rs)) {
+			if ($row = mysqli_fetch_row($rs)) {
 				$this->set_record_meta('footer', array('title' => 'Текст внизу', 'default' => $row[0]));
 			}
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 		}
 	}
 }

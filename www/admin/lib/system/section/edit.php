@@ -6,10 +6,10 @@ class CustomEditor extends Editor {
 
 		// get path form parent section
 		$rs = db_mysql_query_with_params("SELECT path, dir FROM section WHERE id = {section_id}", array('section_id' => $this->input_params['section_id']), $this->conn);
-		if ($row = mysql_fetch_row($rs)) {
+		if ($row = mysqli_fetch_row($rs)) {
 			$path = $row[0] . $row[1];
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		$this->set_record_meta('path', array('default' => $path . "/"));
 		if (!$path)
 			$this->set_record_meta('dir', array('required' => 0));

@@ -8,10 +8,10 @@
 		$query = "SELECT u.id, u.login, u.password, u.passkey, u.enabled, ug.users_group_id, u.name, u.middlename, u.surname, u.email
 				  FROM user u
 				  LEFT JOIN user2users_group ug ON u.id = ug.user_id
-				  WHERE u.login = '" . mysql_real_escape_string($login, $conn) . "'
+				  WHERE u.login = '" . mysqli_real_escape_string($conn, $login) . "'
 				  LIMIT 1";
 		$rs = db_mysql_query($query, $conn);
-		if ($row = mysql_fetch_assoc($rs) and $row['password'] == md5($row['passkey'] . $_POST['password'])) {
+		if ($row = mysqli_fetch_assoc($rs) and $row['password'] == md5($row['passkey'] . $_POST['password'])) {
 			if ($row['enabled'] != 0 and ($row['users_group_id'] !== NULL)) {
 				session_start();
 				session_regenerate_id(true);
@@ -57,7 +57,7 @@
 		session_start();
 		$conn = db_mysql_connect();
 		db_mysql_query("DELETE FROM user_session WHERE id = '" . session_id() . "'", $conn);
-		mysql_close($conn);
+		mysqli_close($conn);
 		session_destroy();
 		setcookie(SESSION_ID_COOKIE_NAME, '', 1, '/', $_SERVER['HTTP_HOST'], isset($_SERVER['HTTPS']), true); // remove cookie
 	}

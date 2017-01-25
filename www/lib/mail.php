@@ -1,7 +1,7 @@
 <?php
 //require 'config.php';
 require 'mailclass.inc.php';
-require "external/csstoinline/css_to_inline_styles.php";
+//require "external/csstoinline/css_to_inline_styles.php";
 
 function mail_send($to, $subject, $message, $is_html = false, $file = NULL) {
 	global $config;

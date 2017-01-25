@@ -8,6 +8,6 @@
 	if (true !== db_mysql_query($query, $conn)) {
 		header('HTTP/1.1 500 Internal Server Error');
 	}
-	mysql_close($conn);
+	mysqli_close($conn);
 	exit;
 ?>

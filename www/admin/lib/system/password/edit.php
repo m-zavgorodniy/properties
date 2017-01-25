@@ -48,7 +48,7 @@ class CustomEditor extends Editor {
 
 	function check_password() {
 		$rs = db_mysql_query("SELECT password, passkey FROM user WHERE id = " . $this->id, $this->conn);
-		if ($row = mysql_fetch_assoc($rs)) {
+		if ($row = mysqli_fetch_assoc($rs)) {
 			$this->salt = $row['passkey'];
 			if (md5($this->salt . $this->input_params['old_password']) == $row['password']) {
 				$res = true;
@@ -57,7 +57,7 @@ class CustomEditor extends Editor {
 				$res = false;
 			}
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		return $res;
 	}
 	

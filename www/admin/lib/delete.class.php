@@ -68,7 +68,7 @@ class DeletePreview extends Editor {
 	} // function render()
 
 	function delete() {
-		return db_mysql_query("DELETE FROM `" . $this->table_meta['table_name'] . "` WHERE id = '" . mysql_real_escape_string($this->id) . "'", $this->conn);
+		return db_mysql_query("DELETE FROM `" . $this->table_meta['table_name'] . "` WHERE id = '" . mysqli_real_escape_string($this->conn, $this->id) . "'", $this->conn);
 	}
 
 	function on_update_success() { ?>

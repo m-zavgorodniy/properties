@@ -28,13 +28,13 @@ class CustomEditor extends Editor {
 		$this->set_record_meta('sef_field', array('title' => "Поле со значениями в формате ЧПУ", 'readonly' => 1, 'default' => $this->values_table_name . "." . $this->target_field));
 
 		$rs_desc = db_mysql_query("DESC `" . $this->values_table_name . "`", $this->conn);
-		while ($row = mysql_fetch_row($rs_desc)) {
+		while ($row = mysqli_fetch_row($rs_desc)) {
 			if ($row[0] == $this->target_field) {
 				$this->target_field_exists = true;
 				break;
 			}
 		}
-		mysql_free_result($rs_desc);
+		mysqli_free_result($rs_desc);
 		if ($this->target_field_exists) {
 			$this->set_alert("Список значений параметра в формате ЧПУ будет обновлен только для тех записей, для которых это значение по каким-либо причинам пусто. Уже существующие значения, и, соответственно, адреса уже проиндексированных поисковиками страниц не изменятся");
 		} else {
@@ -56,18 +56,18 @@ class CustomEditor extends Editor {
 		}
 		
 		$rs = db_mysql_query("SELECT id, `" . $this->source_field . "` FROM `" . $this->values_table_name . "` WHERE 1", $this->conn);
-		while ($row = mysql_fetch_row($rs)) {
-			$r = db_mysql_query("UPDATE `" . $this->values_table_name . "` SET `" . $this->target_field . "` = '" . mysql_real_escape_string(make_safe_url(transliterate($row[1])), $this->conn) . "' WHERE id = " . $row[0] . " AND (TRIM(`" . $this->target_field . "`) = '' OR `" . $this->target_field . "` IS NULL)", $this->conn);
+		while ($row = mysqli_fetch_row($rs)) {
+			$r = db_mysql_query("UPDATE `" . $this->values_table_name . "` SET `" . $this->target_field . "` = '" . mysqli_real_escape_string($this->conn, make_safe_url(transliterate($row[1]))) . "' WHERE id = " . $row[0] . " AND (TRIM(`" . $this->target_field . "`) = '' OR `" . $this->target_field . "` IS NULL)", $this->conn);
 			if (true !== $r) {
 				// try to add ID to the sef value if error is caused by not unique value
 				// target field MUST have unique index
-				$r = db_mysql_query("UPDATE `" . $this->values_table_name . "` SET `" . $this->target_field . "` = '" . mysql_real_escape_string(make_safe_url(transliterate($row[1]) . '-' . $row[0]), $this->conn) . "' WHERE id = " . $row[0] . " AND (TRIM(`" . $this->target_field . "`) = '' OR `" . $this->target_field . "` IS NULL)", $this->conn);
+				$r = db_mysql_query("UPDATE `" . $this->values_table_name . "` SET `" . $this->target_field . "` = '" . mysqli_real_escape_string($this->conn, make_safe_url(transliterate($row[1]) . '-' . $row[0])) . "' WHERE id = " . $row[0] . " AND (TRIM(`" . $this->target_field . "`) = '' OR `" . $this->target_field . "` IS NULL)", $this->conn);
 			}
 			if (true !== $r) {
 				break;
 			}
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		if (true === $r) {
 			db_mysql_query("UPDATE seo_parameter SET activated = 1 WHERE id = '" . $this->id . "'", $this->conn);
 		}

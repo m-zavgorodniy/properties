@@ -24,11 +24,11 @@
 	</head>
 	<body class="cm-sitetree">
     <?	$rs = db_mysql_query("SELECT m.id, m.title_list title FROM meta_table m WHERE m.is_in_extras <> 0 ORDER BY m.id = 'setting', m.id = 'seo_url_data', m.is_system <> 0, title", db_mysql_connect(true));
-		while ($row = mysql_fetch_assoc($rs)) { ?>
+		while ($row = mysqli_fetch_assoc($rs)) { ?>
             <div class="cm-container">
                 <a href="list.php?type=<?=$row['id']?>" target="content" onClick="window.location.href='extras.php?view=custom<?=$row['id']?>#h_custom<?=$row['id']?>';setCurrent(this);" id="custom<?=$row['id']?>"><span><img src="images/icons/bullet_toggle_<?=$g_view=='custom'.$row['id']?'minus':'plus'?>.png" alt=""></span><?=$row['title']?></a>
             </div>
 	<?	}
-		mysql_free_result($rs); ?>
+		mysqli_free_result($rs); ?>
 	</body>
 </html>
