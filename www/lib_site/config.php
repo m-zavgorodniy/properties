@@ -1,5 +1,5 @@
 <?
-$config['DEBUG_ENABLED'] = true;
+$config['DEBUG_ENABLED'] = false;
 
 // properties
 $config['DEFAULT_COUNTRY_ID'] = 1; // Russia
