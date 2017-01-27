@@ -1,0 +1,6 @@
+phpthumb.functions.php, line 747
+preg_match('#302..
+->
+preg_match('#30[12]..
+
+

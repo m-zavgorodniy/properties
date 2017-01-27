@@ -1,0 +1,14 @@
+/* styles for the text content area */
+
+/* FCK Editor */
+big {font-size: 16px; font-weight: normal; line-height: 1.3em;} 
+small {font-size: 11px; line-height: 1.4em;}
+.editor-red, .editor-red a {color: #ff0000;}
+.editor-indent1 {margin-left: 40px;}
+.editor-indent2 {margin-left: 80px;}
+.editor-indent3 {margin-left: 120px;}
+.editor-indent4 {margin-left: 160px;}
+.editor-align-left {text-align: left;}
+.editor-align-center {text-align: center;}
+.editor-align-right {text-align: right;}
+.editor-align-justify {text-align: justify;}

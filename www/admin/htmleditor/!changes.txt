@@ -1,0 +1,11 @@
+editor/filemanager/connectors/php/config.php:	$Config['Enabled'] = true ; $Config['UserFilesPath'] = '/upload/' ;
+						$Config['FileTypesPath'], $Config['QuickUploadPath']
+fckconfig.js:	panels,
+		FCKConfig.Plugins.Add( 'imagegallery' );
+		custom styles (Red Title)
+fckstyles.xml
+
+editor\filemanager\browser\default\frmresourceslist.html
+line 163 - open default folder
+
+io.php - ServerMapFolder() - creates directories from CurrentFolder parameter

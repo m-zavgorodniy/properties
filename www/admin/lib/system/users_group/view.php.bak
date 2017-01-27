@@ -1,0 +1,9 @@
+<?
+class CustomView extends View {
+
+	function make_sub_toolbar($rs_sub_query_meta) { 
+		// do nothing = disabled toolbar
+	}
+
+}
+?>
