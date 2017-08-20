@@ -16,10 +16,10 @@ class CustomEditor extends Editor {
 
 		$listing_type_conditional_fields = array();
 		$rs = db_mysql_query("SELECT t2f.listing_type_id, f.field FROM listing_type2meta_table_field t2f, meta_table_field f WHERE f.id = t2f.meta_table_field_id" , $this->conn);
-		while ($row = mysql_fetch_row($rs)) {
+		while ($row = mysqli_fetch_row($rs)) {
 			$listing_type_conditional_fields[$row[0]][] = $row[1];
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		foreach ($listing_type_conditional_fields as $listing_type => &$fields) {
 			foreach ($fields as &$field) {
@@ -41,27 +41,27 @@ class CustomEditor extends Editor {
 			$title = array();
 	
 			$rs = db_mysql_query("SELECT title FROM property_subtype WHERE id = " . $this->input_params['property_subtype_id'], $this->conn);
-			while ($row = mysql_fetch_row($rs)) {
+			while ($row = mysqli_fetch_row($rs)) {
 				$title['subtype'] = $row[0];
 			}
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 	
 			$rs = db_mysql_query("SELECT title FROM loc_city WHERE id = " . $this->input_params['loc_city_id'], $this->conn);
-			while ($row = mysql_fetch_row($rs)) {
+			while ($row = mysqli_fetch_row($rs)) {
 				$title['city'] = $row[0];
 			}
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 	
 			$rs = db_mysql_query("SELECT title FROM loc_metro WHERE id = " . $this->input_params['loc_metro_id'], $this->conn);
-			while ($row = mysql_fetch_row($rs)) {
+			while ($row = mysqli_fetch_row($rs)) {
 				$title['metro'] = $row[0];
 			}
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 			$rs = db_mysql_query("SELECT title FROM loc_street WHERE id = " . $this->input_params['loc_street_id'], $this->conn);
-			while ($row = mysql_fetch_row($rs)) {
+			while ($row = mysqli_fetch_row($rs)) {
 				$title['street'] = $row[0];
 			}
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 	
 			$this->input_params['title'] = (PROPERTY_TYPE_SALE_ID == $this->input_params['listing_type_id']?'Продается':'Сдается') . ' ' .
 				(('' !== $this->input_params['bedrooms'] and PROPERTY_SUBTYPE_ID_APT == $this->input_params['property_subtype_id'])?

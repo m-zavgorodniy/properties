@@ -8,7 +8,7 @@
 							  WHERE published <> 0 AND section_id = " . (int)$section_id ."
 							  ORDER BY sort_num
 							  LIMIT 1", $conn);
-		if ($row = mysql_fetch_assoc($rs)) {
+		if ($row = mysqli_fetch_assoc($rs)) {
 			if ($row['section_type_id'] != 'menuitem') {
 				if ($row['section_type_id'] != 'link') {
 					$url = $_SITE_path . $row['path'] . $row['dir'];
@@ -19,7 +19,7 @@
 				$url = get_menuitem_link($row['id'], $_SITE_path, $conn);
 			}
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		return $url;
 	}	
 ?>
