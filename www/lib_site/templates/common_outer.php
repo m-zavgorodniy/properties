@@ -19,6 +19,7 @@
 <?	} else if (defined('SEO_KEYWORDS')) { ?>
 	<meta name="keywords" content="<?=SEO_KEYWORDS?>">
 <?	} ?>
+    <meta name="yandex-verification" content="ab33d391608ad078">
 
 	<link href="/css/styles.css?r=1" rel="stylesheet">
 	<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie.css" media="screen" /><![endif]-->
@@ -170,7 +171,7 @@
 	                            Наши цены на вашей стороне - ведь мы заинтересованы в том, чтобы именно у нас вы нашли подходящее вам предложение.
                             </p>
                             <p>
-		                        <span class="g-bold">Вы выбираете - все остальное делаем мы!</span>
+		                        <span class="g-bold">Вы выбираете - все остальное сделаем мы!</span>
                             </p>
                         </div>
                     </div>

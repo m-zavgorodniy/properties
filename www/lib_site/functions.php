@@ -204,7 +204,7 @@ function out_contact_form ($listing_id = 0) { ?>
     <?	if ($listing_id) { ?>
         <input type="hidden" name="property_id" value="<?=$listing_id?>">
     <?	} ?>
-        <div class="form-field-line">
+    <? /* ---- form!    <div class="form-field-line">
             <div class="form-field-short">
                 <input type="text" name="name" value="" placeholder="Ваше имя *" class="form-input-text required">
             </div>
@@ -214,7 +214,7 @@ function out_contact_form ($listing_id = 0) { ?>
             <div class="form-field-short">
                 <input type="phone" name="phone" value="" placeholder="Контактный телефон *" class="form-input-text required">
             </div>
-        </div>
+        </div> */?>
         <textarea name="message" placeholder="Ваше сообщение *" class="form-input-text required"></textarea>
         <button type="submit" value="1" class="form-input-submit g-button">Отправить</button>
     </form>

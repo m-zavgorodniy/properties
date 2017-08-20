@@ -21,9 +21,9 @@
         			<a<?=$banner['url']?' href="' . $banner['url'] . '"':''?>><img src="<?=$banner['img_src']?>" alt=""></a>
             <?  } ?>
             </div>
-            <div class="home-promo-form">
+            <? /* ---- form! <div class="home-promo-form">
             <?  out_contact_form(); ?>
-            </div>
+            </div> */ ?>
         </div>
 <?  } ?>
 
@@ -49,9 +49,9 @@
             out_listing($listing);
             if (0 == (++$i % 3)) { ?>
                 </div>
-                <div class="g-title">Оставьте заявку</div>
+            <? /* ---- form!    <div class="g-title">Оставьте заявку</div>
                 <?  out_contact_form(); ?>
-                <br><br><br><br>
+                <br><br><br><br> */ ?>
                 <div class="properties-grid g-clearfix">
         <?  }
         }
@@ -106,9 +106,9 @@
 
     <div class="home-newsletter">
     	<div class="home-newsletter-box">
-            <form action="">
+        <? /* ---- form!    <form action="">
                 <input type="text" placeholder="Ваш e-mail"><button type="submit" class="g-button">Подписаться на новости</button>
-            </form>
+            </form> */ ?>
 	    </div>
     </div>
 <?	} ?>

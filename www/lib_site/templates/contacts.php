@@ -6,10 +6,10 @@ require "mail.php";
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	$params = get_post();
 	
-	if (!$params['name']) $error[1] = 'Не заполнено обязательное поле.';
+/* ---- form!	if (!$params['name']) $error[1] = 'Не заполнено обязательное поле.';
 	
 	if (!$params['email']) $error[2] = 'Не заполнено обязательное поле.';
-	else if (!valid_email($params['email'])) $error[2] = 'Неправильно указан адрес электронной почты.';
+	else if (!valid_email($params['email'])) $error[2] = 'Неправильно указан адрес электронной почты.'; */
 
 	if (!$params['message']) $error[3] = 'Не заполнено обязательное поле.';
 
@@ -73,14 +73,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="g-title">Отправьте нам сообщение</div>
         <form action="#contact_form" method="post" class="form-validate" novalidate>
             <input type="hidden" name="property" value="<?=$_SERVER['HTTP_REFERER']?>">
-            <div class="form-field-line">
+        <? /* ---- form!    <div class="form-field-line">
                 <div class="form-field-short">
                     <input type="text" name="name" value="<?=$params['name']?>" placeholder="Ваше имя *" class="form-input-text required<?=$error[1]?' form-input-invalid':''?>">
                 </div>
                 <div class="form-field-short">
                     <input type="email" name="email" value="<?=$params['email']?>" placeholder="Ваш e-mail *" class="form-input-text required<?=$error[2]?' form-input-invalid':''?>">
                 </div>
-            </div>
+            </div> */?>
             <textarea name="message" placeholder="Ваше сообщение *" class="form-input-text required<?=$error[3]?' form-input-invalid':''?>"><?=$params['message']?></textarea>
             <button type="submit" value="1" class="form-input-submit g-button">Отправить</button>
         </form>
