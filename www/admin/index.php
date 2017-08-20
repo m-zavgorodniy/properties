@@ -1,4 +1,4 @@
-<? 
+<?
 	require $_SERVER['DOCUMENT_ROOT'] . "/lib/functions.php";
 	require "lib/functions_admin.php";
 	require "access.php";
