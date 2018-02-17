@@ -80,7 +80,8 @@ class CustomEditor extends Editor {
 
 	function render() {
 		
-		// hide the picture's fields and the 'featured' fields for non-admins ?>
+		// hide the picture's fields and the 'featured' fields for non-admins 
+		// *looks hardcoded bro ?>
 		
         <style>
 			a[href='#block2'], a[href='#block2'] + div {display: none;}
