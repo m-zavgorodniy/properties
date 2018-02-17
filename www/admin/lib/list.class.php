@@ -37,6 +37,9 @@ class CList extends TableRows {
 	}
 
 	function init() {
+		if (isset($_GET['filter'])) {
+			$this->set_sql_filter(mysqli_real_escape_string($this->conn, $_GET['filter']));
+		}
 		if (parent::init()) {
 			$this->make_main_toolbar($this->toolbars['main'] = new Toolbar());
 			return true;
